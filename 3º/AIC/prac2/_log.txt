@@ -1,0 +1,92 @@
+Ciclo: 7, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 9, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 9, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 9, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 10, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 14, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 15, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 15, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 15, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 19, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 21, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 21, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 21, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 22, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 26, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 27, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 27, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 27, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 31, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 33, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 33, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 33, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 34, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 38, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 39, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 39, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 39, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 43, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 45, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 45, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 45, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 46, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 50, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 51, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 51, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 51, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 55, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 57, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 57, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 57, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 58, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 62, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 63, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 63, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 63, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 67, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 69, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 69, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 69, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 70, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 74, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 75, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 75, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 75, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 79, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 81, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 81, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 81, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 82, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 86, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 87, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 87, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 87, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 91, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 93, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 93, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 93, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 94, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 98, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 99, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 99, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 99, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 103, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 105, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 105, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 105, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 106, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 110, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 111, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 111, Señal: IFnop; Instrucción addi t1,t1,-1
+Ciclo: 111, Señal: Salto Efectivo; Instrucción bne t1,zero,-28 [loop]
+Ciclo: 115, Señal: corto MEMaEXalu_s; Rdst auipc a1,1 [%pcrel_hi(cont)](en MEM) == Rfte ld a1,76(a1) [%pcrel_lo(cont)](en EX)
+Ciclo: 117, Señal: corto MEMaEXalu_s; Rdst auipc a2,1 [%pcrel_hi(a)](en MEM) == Rfte ld a2,-20(a2) [%pcrel_lo(a)](en EX)
+Ciclo: 117, Señal: LOAD IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 117, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en EX) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 118, Señal: BXX IDstall, IFstall; Rdst ld a2,-20(a2) [%pcrel_lo(a)](en MEM) == Rfte beq a2,zero,24 [inc](en ID)
+Ciclo: 122, Señal: BXX IDstall, IFstall; Rdst addi t1,t1,-1(en EX) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 123, Señal: corto MEMaIDcomp_s; Rdst addi t1,t1,-1(en MEM) == Rfte bne t1,zero,-28 [loop](en ID)
+Ciclo: 125, Señal: IFstall; Instrucción ecall
+Ciclo: 126, Señal: IFstall; Instrucción ecall
+Ciclo: 127, Señal: IFstall; Instrucción ecall
+Ciclo: 128, Señal: IFstall; Instrucción ecall
