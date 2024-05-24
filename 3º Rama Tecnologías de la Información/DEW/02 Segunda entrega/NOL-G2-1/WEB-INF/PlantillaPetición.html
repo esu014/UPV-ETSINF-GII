@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .bolivia{
+        	text-align: right;
+        }
+		.divs {
+        	display:grid;
+        	grid-template-columns: 1fr  auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="divs">
+	<div style="justify-self:start">
+		<h1>Certificado sin validez académica</h1>
+		<p><b>DEW - Centro Educativo</b> certifica que D/Dª <b>{{nombre}}</b>, con DNI {{dni}}, matriculado/a en el curso 23/24, ha obtenido las calificaciones que se muestran en la siguiente tabla.</p>
+	</div>
+	<div style="justify-self:end">
+		{{imagen}}
+	</div>
+</div>
+    
+    <h3>Resumen de notas:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Acrónimo</th>
+                <th>Asignatura</th>
+                <th>Calificación</th>
+            </tr>
+        </thead>
+        <tbody>
+                {{asg}}
+        </tbody>
+    </table>
+    
+    <p class=bolivia>{{fecha}}</p>
+</body>
+</html>
