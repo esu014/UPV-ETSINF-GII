@@ -14,7 +14,7 @@ Consiste en una toma de contacto con `JavaScript`. Se hacen cosas muy básicas. 
 ### Práctica 2
 Consiste en interacciones entre clientes-servidores y como puede funcionar una aplicación con `JS` tanto como cliente, como servidor. Además tambien se introduce conceptos como "proxies inversos". Si has hecho el esfuerzo de entender `JS`, en esta práctica solo te tienes que preocupar por los conceptos de cliente-servidor. 
 ### Práctica 3
-La práctica 3, se basa en la dos, pero añadiendo los conceptos de Docker. Vas a hacer lo mismo que en la dos pero desplegando varios contenedores, que una vez que se ejecuten tendrán que realizar automáticamente una serie de programas (dependiendo si un contenedor es cliente o servidor). Luego según el boletín, habrá que hacer cosas específicas, pero la idea genera es la que estoy comentando aquí.
+La práctica 3, se basa en la 2, pero añadiendo los conceptos de Docker. Vas a hacer lo mismo que en la 2 pero desplegando varios contenedores, que una vez que se ejecuten tendrán que realizar automáticamente una serie de programas (dependiendo si un contenedor es cliente o servidor). Luego según el boletín, habrá que hacer cosas específicas, pero la idea genera es la que estoy comentando aquí.
 
 ## Recomendaciones
 
