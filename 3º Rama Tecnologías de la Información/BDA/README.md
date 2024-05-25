@@ -6,7 +6,7 @@ En los archivos de arriba os vais a encontrar archivos `txt` ya que los `sql`no 
 
 ### Información prácticas
 
-En cuanto a las practicas, constan de dos grandes bloques, la práctica 1, que no es evaluada como tal, y la práctica 2, que es el proyecto. 
+En cuanto a las prácticas, constan de dos grandes bloques, la práctica 1, que no es evaluada como tal, y la práctica 2, que es el proyecto. 
 La práctica 1 se evalua realmente con un examen de SQL que valía 4 puntos sobre la nota final. Se hace fuera de la tanda de examenes. Para sacar una buena nota y tener la asignatura casi aprobada, recomiendo verse los videos que hay en [PoliFormaT](https://poliformat.upv.es), que explican métodos para hacer los distintos tipos de consultas que hay. Y luego también hacer todos los ejercicios del boletín de prácticas, de todas las bases de datos, porque cuanto más practiques mejor.
 
 ### Información proyecto
