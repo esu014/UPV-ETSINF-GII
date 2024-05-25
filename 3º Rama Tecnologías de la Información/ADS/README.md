@@ -4,7 +4,7 @@
 
 El código que se facilita en github está realizado por los alumnos Anass Lambaraa, Pablo Raga y Enrique Sopeña, en el curso 2023-2024.
 
-En el archivo solo están los retos obligatorios. El reto 6 (opcional), no lo hemos llegado a hacer
+En el archivo solo están los retos obligatorios. El reto 6 (opcional), no lo hemos llegado a hacer.
 
 ## Calificación obtenida
 
