@@ -2,8 +2,8 @@
 
 # Introducción
 
-En el [README](../README.md) se explica en que consiste la práctica dos, por tanto aqui solo me voy a limitar a poner la calificación del proyecto y alguna recomendación del mismo.
-La práctica la realice yo solo, aunque se puede hacer por parejas, cosa que recomiendo porque a la hora de sacar conclusiones o de programar. De esta manera es más fácil llegar al resultado y ver que lo que estás haciendo está bien (siempre y cuando los miembros tengan los conocimientos mínimos de la asignatura). Además, obviamente, se puede dividir el trabajo y compaginar otras actividades de las distintas asignaturas
+En el [README](../README.md) anterior (el que está en la carpeta [CPA](../)) se explica en que consiste la práctica 2, por tanto aqui solo me voy a limitar a poner la calificación del proyecto y alguna recomendación del mismo.
+La práctica la realice yo solo, aunque se puede hacer por parejas, cosa que recomiendo porque a la hora de sacar conclusiones o de programar. De esta manera es más fácil llegar al resultado y ver que lo que estás haciendo está bien (siempre y cuando los miembros tengan los conocimientos mínimos de la asignatura). Además, obviamente, se puede dividir el trabajo y compaginar otras actividades de las distintas asignaturas.
 
 ## Calificación
 
@@ -12,4 +12,4 @@ Anotaría en este README, las anotaciones que me hizo el profesor sobre el proye
 
 ## Recomendaciones
 Recomiendo que la memoria que se entregue, esté perfectamente redactada y estructurada, ya que eso los porfesores lo tienen bastante en cuenta y además puntúe. 
-También recomiendo incluir imagenes y gráficos con los distintos datos recopilados y sacar varias conclusiones en los subapartados, comparando siempre datos y justificando los resultados con el apoyo de la teoría
+También recomiendo incluir imagenes y gráficos con los distintos datos recopilados y sacar varias conclusiones en los subapartados, comparando siempre datos y justificando los resultados con el apoyo de la teoría.
