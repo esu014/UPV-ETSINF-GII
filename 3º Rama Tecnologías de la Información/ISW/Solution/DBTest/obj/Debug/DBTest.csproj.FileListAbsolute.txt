@@ -1,0 +1,15 @@
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\DBTest.exe.config
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\DBTest.exe
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\DBTest.pdb
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\EntityFramework.dll
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\UPVTubeLib.dll
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\UPVTubeLib.pdb
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\UPVTubeLib.dll.config
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\EntityFramework.xml
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\obj\Debug\DBTest.csproj.AssemblyReference.cache
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\obj\Debug\DBTest.csproj.CoreCompileInputs.cache
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\obj\Debug\DBTest.csproj.CopyComplete
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\obj\Debug\DBTest.exe
+C:\Users\Kike\Source\Repos\ProyectoISW\Solution\DBTest\obj\Debug\DBTest.pdb

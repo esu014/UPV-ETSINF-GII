@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{780E0DB8-B42C-41C9-9A25-6A0703A11CE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPVTubeLib", "Library\ClassLibrary\UPVTubeLib.csproj", "{879144A6-2C85-41FD-92AB-077E5CB8C1BC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{636B9674-3035-43AA-A8F8-A6DDB65B4BDC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{D6886B8E-1DC9-4A9B-93CC-8DA0EE452C15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPVTubeObjectDesignTests", "UPVTubeObjectDesignTests\UPVTubeObjectDesignTests.csproj", "{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPVTubePersistenceTests", "UPVTubePersistenceTests\UPVTubePersistenceTests.csproj", "{2F43F354-5D3C-48BA-A632-00D79D6607EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBTest", "DBTest\DBTest.csproj", "{7FEBAF5F-5515-4622-9C34-D29D500CB7F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI_UPVTube", "GUI_UPVTube\GUI_UPVTube.csproj", "{422DC640-DFCF-445A-AA49-CC9A5AD04116}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{879144A6-2C85-41FD-92AB-077E5CB8C1BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{879144A6-2C85-41FD-92AB-077E5CB8C1BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{879144A6-2C85-41FD-92AB-077E5CB8C1BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{879144A6-2C85-41FD-92AB-077E5CB8C1BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F43F354-5D3C-48BA-A632-00D79D6607EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F43F354-5D3C-48BA-A632-00D79D6607EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F43F354-5D3C-48BA-A632-00D79D6607EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F43F354-5D3C-48BA-A632-00D79D6607EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FEBAF5F-5515-4622-9C34-D29D500CB7F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FEBAF5F-5515-4622-9C34-D29D500CB7F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FEBAF5F-5515-4622-9C34-D29D500CB7F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FEBAF5F-5515-4622-9C34-D29D500CB7F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{422DC640-DFCF-445A-AA49-CC9A5AD04116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{422DC640-DFCF-445A-AA49-CC9A5AD04116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{422DC640-DFCF-445A-AA49-CC9A5AD04116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{422DC640-DFCF-445A-AA49-CC9A5AD04116}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{879144A6-2C85-41FD-92AB-077E5CB8C1BC} = {780E0DB8-B42C-41C9-9A25-6A0703A11CE2}
+		{48E97C2A-5638-42CF-B6F9-62EFF5DBBA34} = {636B9674-3035-43AA-A8F8-A6DDB65B4BDC}
+		{2F43F354-5D3C-48BA-A632-00D79D6607EE} = {636B9674-3035-43AA-A8F8-A6DDB65B4BDC}
+		{7FEBAF5F-5515-4622-9C34-D29D500CB7F3} = {636B9674-3035-43AA-A8F8-A6DDB65B4BDC}
+		{422DC640-DFCF-445A-AA49-CC9A5AD04116} = {D6886B8E-1DC9-4A9B-93CC-8DA0EE452C15}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CBC7BF74-2CE2-4978-A542-F4D0E74BA59D}
+	EndGlobalSection
+EndGlobal
