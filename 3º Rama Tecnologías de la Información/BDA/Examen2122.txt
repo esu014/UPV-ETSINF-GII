@@ -1,0 +1,105 @@
+select s.cod_sala, s.nom_sala
+from sala s
+where (
+    select count(o.cod_ob)
+    from obra o
+    where o.cod_sala = s.cod_sala
+) 
+= 
+(
+    select count(o1.cod_ob)
+    from obra o1
+    where o1.cod_sala = s.cod_sala and o1.cod_art in(
+        select a.cod_art
+        from artista a
+        where a.ano_nac between 1900 and 1999
+    )
+)
+and (
+    select count(o.cod_ob)
+    from obra o
+    where o.cod_sala = s.cod_sala
+) > 0;
+
+select v.nombre
+from vigilante v
+where edad = (
+    select min(v.edad)
+    from vigilante v1
+    where v1.cod_gru is null
+)
+and v.cod_gru not in(
+    select g.cod_gru
+    from grupo g
+);
+
+select s.cod_sala, s.nom_sala, count(o.cod_ob)
+from sala s, obra o
+where s.cod_sala = o.cod_sala
+group by s.cod_sala, s.nom_sala
+having count(o.cod_ob) = (
+    select max(count(o1.cod_ob))
+    from obra o1
+    group by o1.cod_sala
+);
+
+select distinct a.nombre, a.ano_nac
+from artista a, obra o1
+where o1.cod_art = a.cod_art and o1.ano = (
+    select min(o.ano)
+    from obra o
+);
+
+select s.cod_sala, s.nom_sala, count(v.dni)
+from sala s left join vigila v on s.cod_sala = v.cod_sala
+where (
+    select count(*)
+    from obra o
+    where s.cod_sala = o.cod_sala
+) > 5
+group by s.cod_sala, s.cod_sala; 
+
+select a.nombre
+from artista a
+where a.estilo = '...' and a.cod_art in (
+    select o.cod_art
+    from obra o
+    where o.ano is null
+)
+order by a.nombre;
+
+select g1.nombre, g1.cod_gru
+from grupo g1 
+where (
+    select count(*)
+    from grupo g
+    where 45 > (
+        select avg(v.edad)
+        from vigilante v
+        where v.cod_gru = g.cod_gru
+    )
+) = (
+    select count(*)
+    from grupo g
+    where 45 > (
+        select avg(v.edad)
+        from vigilante v
+        where v.cod_gru = g.cod_gru
+        and v.dni in(
+            select vi.dni
+            from vigila
+        )
+    ) 
+)and (
+    select count(*)
+    from grupo g
+    where 45 > (
+        select avg(v.edad)
+        from vigilante v
+        where v.cod_gru = g.cod_gru
+    )
+) > 0
+
+;
+
+

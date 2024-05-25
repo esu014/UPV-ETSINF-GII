@@ -1,0 +1,201 @@
+--Consultas agrupadas
+--7
+select c.nombre, c.sede, g.nombre
+from club c, grupo g
+where g.cod = c.cod_gru and g.pais = 'España';
+
+--8
+select a.nombre
+from artista a, pertenece p, grupo g
+where a.dni = p.dni and p.cod = g.cod and g.pais = 'España'
+Order by a.nombre;
+--8 subconsultas
+select a.nombre
+from artista a 
+where a.dni in(
+    select p1.dni
+    from pertenece p1
+    where p1.cod in(
+        select g.cod
+        from grupo g
+        where g.pais = 'España'
+    )
+)
+Order by a.nombre;
+
+--9
+select distinct d.nombre --puede haber dos canciones que duren más de 5 minutos en un mismo album
+from cancion c, disco d, esta e
+where c.cod = e.can and e.cod = d.cod and c.duracion > 5;
+
+--10
+select c.titulo
+from cancion c, esta e, disco d
+where c.cod = e.can and e.cod = d.cod and c.titulo = d.nombre;
+
+--11
+select distinct co.nombre, co.dir
+from companyia co, disco d
+where co.cod = d.cod_comp and d.nombre like 'A%';
+
+--12
+select distinct a.dni
+from artista a, pertenece p, pertenece p1
+where a.dni = p.dni and a.dni = p1.dni and p.cod <> p1.cod;
+
+--subconsultas
+--13
+select d.nombre
+from disco d
+where cod_gru in (
+    Select cod
+    from GRUPO
+    where fecha = (
+        Select min(g.fecha)
+        From GRUPO g
+    )
+);
+--13 segunda opcion:
+select d.nombre
+from disco d
+where exists(
+    select *
+    from GRUPO
+    where d.COD_GRU = cod and fecha = (
+        Select min(g.fecha)
+        from Grupo g
+    )
+);
+
+--14
+select d.nombre
+from disco d
+where d.cod_gru in(
+    select cod
+    from GRUPO
+    where cod in (
+        select c.cod_gru
+        from club c
+        where num > 5000
+    )
+);
+--14 segunda opcion
+select d.nombre
+from disco d
+where exists(
+    select *
+    from GRUPO g
+    where g.cod = d.cod_gru and exists (
+        select *
+        from club c
+        where c.cod_gru = g.cod and num > 5000
+    )
+);
+
+--15
+select c.nombre, c.num
+from club c
+where c.num = (
+    select max(c1.num)
+    from club c1
+);
+
+--16
+select c.titulo, c.duracion
+from cancion c
+where c.duracion = (
+    select max(c1.duracion)
+    from cancion c1
+);
+
+select count(*)
+from clasificacion
+where COD_GEN = 'BB5' or COD_GEN = 'GG4' or COD_GEN = 'JH6';
+
+
+--Cuantificador universal
+--17
+select distinct co.nombre
+from companyia co
+where not exists(
+    select *
+    from grupo g
+    where g.pais = 'España' 
+    and g.cod in (
+        select cod_gru
+        from disco
+        where cod_comp = co.cod
+    )
+)
+and exists 
+(
+    select *
+    from disco d2
+    where d2.cod_comp = co.cod
+);
+
+--18
+select distinct co.nombre
+from companyia co
+where not exists(
+    select *
+    from disco d
+    where d.cod_comp = co.cod
+    and d.cod_gru in (
+        select g.cod
+        from grupo g
+        where g.pais <>'España'
+    )
+)
+--puede darse el caso de que al no haber trabajado con nadie tambien saldria
+and co.cod in(
+    select d1.cod_comp
+    from disco d1
+);
+
+--19
+select co.nombre, co.dir
+from companyia co
+where not exists(
+    select * 
+    from grupo g
+    where g.cod in (
+        select d.cod_gru
+        from disco d
+    )
+    and not exists(
+        select *
+        from disco d1
+        where g.cod = d1.cod_gru
+        and d1.cod_comp in (
+            select d3.cod_comp
+            from disco d3
+        )
+    )
+)
+and exists(
+    select * 
+    from disco d2
+    where d2.cod_comp = co.cod
+);
+
+select * 
+from COMPANYIA 
+where cod in (
+    select cod_comp
+    from disco 
+    where cod_comp = 6 or cod_gru = 7
+);
+
+select *
+from grupo 
+where pais = 'España';
+
+select *
+from disco 
+where cod_gru in (
+    select COD
+    from grupo
+    where cod = 5 or cod = 6
+);
+

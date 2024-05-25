@@ -1,0 +1,136 @@
+--CONSULTAS GENERALES
+--CINE
+--55
+select g.nombre 
+from genero g
+where g.cod_gen in (
+    select c.cod_gen
+    from clasificacion c 
+    where c.cod_peli in(
+        select p.cod_peli
+        from pelicula p
+        where p.duracion = (
+            select max(p1.duracion)
+            from pelicula p1
+        )
+    )
+);
+--56: repasar
+select a.cod_act, a.nombre, a.fecha_nac, count(ac.papel)
+from actor a 
+    left join actua ac 
+    on ac.papel = 'Principal' 
+    and ac.cod_act = a.cod_act
+where extract(year from a.fecha_nac) < 1948
+and a.cod_act in (
+    select ac1.cod_act
+    from actua ac1
+    group by ac1.cod_act
+    having count(ac1.cod_act) >=2
+)
+group by a.cod_act, a.nombre, a.fecha_nac
+order by a.nombre;
+
+--57: repasar aunque la haya hecho yo
+select a.cod_act, a.nombre
+from actor a
+where a.cod_act in (
+    select ac1.cod_act
+    from actua ac1
+    where ac1.cod_act not in(
+        select ac.cod_act
+        from actua ac
+        where ac.cod_peli in (
+            select p.cod_peli
+            from pelicula p
+            where p.anyo < 1994
+        )
+    )
+)
+order by a.nombre;
+
+--MUSICA:
+--24
+select a.nombre
+from artista a
+where a.dni in(
+    select p.dni
+    from pertenece p
+    where p.cod in(
+        select g.cod
+        from grupo g
+        where g.pais = 'Inglaterra' and g.cod in(
+            select c.cod_gru
+            from club c
+            where num > 500
+        )
+    )
+)
+order by a.nombre;
+
+--25
+select c.titulo
+from cancion c
+where c.cod in(
+    select e.can
+    from esta e
+    where e.cod in (
+        select d.cod
+        from disco d
+        where d.cod_gru in(
+            select g.cod
+            from grupo g
+            where g.nombre = 'U2'
+        )
+    )
+)
+order by c.titulo;
+
+--26 ni zorra
+
+--27
+select distinct a.nombre
+from artista a, pertenece p1, pertenece p2
+where a.dni = p1.dni and a.dni = p2.dni and p2.cod <> p1.cod;
+
+--28 no entiendo qu epide realmente
+
+--29
+select c.nombre, c.num 
+from club c
+where 10 = (
+    select count(distinct c1.num)
+    from club c1
+    where c1.num >= c.num
+);
+
+--30 
+select a.nombre
+from artista a
+where a.dni in(
+    select p.dni 
+    from pertenece p
+    where funcion = 'bajo' 
+    and not exists(
+        select *
+        from pertenece p2
+        where p2.dni = p.dni and p.cod <> p2.cod
+    )
+    and 2 < (
+        select count(distinct p1.dni)
+        from pertenece p1
+        where p.cod = p1.cod
+    )
+);
+
+--30
+select co.nombre, count(c.cod) canciones
+from COMPANYIA co, cancion c, disco d, esta e
+where co.cod = d.cod_comp and d.cod = e.cod and e.can = c.cod
+group by co.nombre, co.cod
+having count(c.cod)>=ALL(
+    select count(c1.cod)
+    from cancion c1, esta e1, disco d1, COMPANYIA co1
+    where c1.cod = e1.can and e1.cod = d1.cod and d1.cod_comp = co1.cod
+    group by co1.cod
+);

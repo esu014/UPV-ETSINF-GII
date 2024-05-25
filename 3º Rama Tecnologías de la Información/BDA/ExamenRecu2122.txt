@@ -1,0 +1,76 @@
+--1
+select m.dni, m.nombre
+from moderador m
+where m.dni not in(
+    select s.dni
+    from sesion s
+    where s.dni is not null and 3< (
+        select count(*)
+        from ponencia p
+        where p.cod_sesion = s.cod_sesion and p.tematica = '...'
+    )
+);
+
+--2
+select s.cod_sesion, s.fecha
+from sesion s, ponencia p
+where s.cod_sesion = p.cod_sesion and p.tematica = '...'
+group by s.cod_sesion, s.fecha
+having count(p.cod_ponencia) >= ALL(
+    select count(p1.cod_ponencia)
+    from ponencia p1
+    where p1.tematica = '...' and p1.cod_sesion = s.cod_sesion
+    group by p1.cod_sesion
+);
+
+select a.dni, a.nombre
+from autor a
+where a.dni in(
+    select h.dni 
+    from ha_escrito h
+    where (
+        select count(*)
+        from ponencia p
+        where h.cod_ponencia = p.cod_ponencia 
+    ) = (
+        select count(p1.cod_ponencia)
+        from ponencia p1
+        where h.cod_ponencia = p1.cod_ponencia and p1.posicion = 1 and p.cod_sesion in(
+            select s.cod_sesion
+            from sesion s
+        )
+    )
+)
+and exists(
+    select count(*)
+    from ponencia p2
+    where h.cod_ponencia = p2.ponencia 
+);
+
+select m.dni, m.nombre, count(s.cod_sesiones)
+from moderador m, sesion s
+where m.cod_pais not in(
+    select a.cod_pais
+    from autor a
+    where a.cod_pais is not null
+) 
+and m.dni = s.dni and s.hora_ini = '16:00'
+group by m.dni, m.nombre;
+
+select pa.cod_pais, pa.nombre, count(a.dni)
+from pais pa, autor a
+where a.edad > 40 and a.cod_pais = pa.cod_pais
+group by pa.cod_pais, pa.nombre
+having (
+    select count(m.dni)
+    from moderador m
+    where m.cod_pais = pa.cod_pais
+) > 5;
+
+create table ha escrito(
+    dni CHAR(10) 
+        constraint fk_dni references AUTOR(dni),
+    cod_ponencia char(5) 
+        constraint fk_cod_ponencia references PONENCIA(cod_ponencia),
+    constraint fk_primary_key primary key (dni, cod_ponencia)
+);

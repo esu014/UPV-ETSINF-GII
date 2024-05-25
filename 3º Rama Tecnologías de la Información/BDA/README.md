@@ -2,7 +2,8 @@
 
 ## Información
 
-En los archivos de arriba os vais a encontrar archivos `txt` ya que los `sql`no tienen vista previa. Son diversas consultas de la práctica 1 que utilicé para practicar para el examen de SQL. Si quereis todas las soluciones, alguien las subió a Wuolah.  
+En los archivos de arriba os vais a encontrar archivos `txt` ya que los `sql`no tienen vista previa. Son consultas de la práctica 1 que utilicé para practicar para el examen de SQL. Están agrupadas por el tipo de preguntas que son. De todos modos, en caso de que falte alguna, están tambien en Wuolah todas las soluciones a las distintas bases de datos (alguien las subió).  
+También están la sulución a algún examen, aunque creo que eso se le facilita al alumno. 
 
 ### Información prácticas
 

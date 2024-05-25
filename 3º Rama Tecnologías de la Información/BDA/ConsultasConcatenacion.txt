@@ -1,0 +1,26 @@
+--Consultas del tipo Concatenacion (JOIN...)
+--Cine
+--50
+select pa.cod_pais, pa.nombre, count(a.cod_act)
+from pais pa left join actor a on (pa.cod_pais = a.cod_pais)
+group by pa.cod_pais, pa.nombre
+order by pa.nombre;
+
+--51
+select l.cod_lib, l.titulo, count(p.cod_peli)
+from libro_peli l left join pelicula p on(l.cod_lib = p.cod_lib)
+where l.anyo > 1980
+group by l.cod_lib, l.titulo;
+
+--52
+select pa.cod_pais, pa.nombre, count(distinct a.cod_act) Actor
+from pais pa left join (actor a join actua ac on ac.cod_act = a.cod_act and ac.papel = 'Secundario') on a.cod_pais = pa.cod_pais
+group by pa.cod_pais, pa.nombre
+order by pa.nombre;
+
+--53
+select p.cod_peli, p.titulo, count(distinct c.cod_gen), count(distinct ac.cod_act)
+from clasificacion c right join (pelicula p left join actua ac on ac.cod_peli = p.cod_peli) on p.cod_peli = c.cod_peli
+where p.duracion > 140
+group by p.cod_peli, p.titulo
+order by p.titulo;

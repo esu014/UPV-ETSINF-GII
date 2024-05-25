@@ -1,0 +1,81 @@
+--1
+select p.dni
+from profesor p
+where p.edad = (
+    select min(p1.edad)
+    from profesor p1
+    where p1.dni in(
+        select a1.prof_teo
+        from alumno a1
+    )
+)
+and exists(
+    select *
+    from alumno
+    where a.prof_teo = p.dni
+);
+
+--2
+select p.dni, p.nombre, p.edad, count(pr.cod_tema)
+from profesor p left join prepara pr on p.dni = pr.dni
+where p.categoria = 'CU'
+group by p.dni, p.nombre, p.edad;
+
+--3
+select t.cod_tema, t.titulo, avg(e.nota), max(e.nota), min(e.nota)
+from tema t natural join examen e
+group by t.cod_tema, t.titulo
+having avg(e.nota) = (
+    select max(avg(e1.nota))
+    from examen e1
+    group by e1.cod_tema
+);
+
+--4
+select t.cod_tema, t.titulo
+from tema t
+where not exists(
+    select *
+    from examen e
+    where e.cod_tema = t.cod_tema and e.nota >= 5
+    and not exists(
+        select *
+        from alumno a
+        where a.prof_pra = a.prof_teo
+        and a.dni = e.dni
+    )
+)
+and exists(
+    select *
+    from alumno a1
+    where a1.prof_teo = a1.prof_prac
+);
+
+--5
+select t.cod_tema, t.descripcion
+from tema t
+where t.cod_tema in(
+    select pr.cod_tema
+    from prepara pr
+    where pr.dni in(
+        select p.dni
+        from profesor p 
+        where not exists(
+            select *
+            from alumno a
+            where a.prof_pra = p.dni
+        )
+    )
+)
+;
+
+--6
+select t.cod_tema, t.titulo, avg(e.nota)
+from profesor p, prepara pr, tema t, examen e
+where p.categoria ='CU' and t.cod_tema = e.cod_tema and p.dni = pr.dni and pr.cod_tema = t.cod_tema
+group by t.cod_tema, t.titulo
+having 2<=(
+    Select COUNT(*)
+    from prepara pr1
+    where pr1.cod_tema = pr.cod_tema and pr1.dni <> pr.dni
+);

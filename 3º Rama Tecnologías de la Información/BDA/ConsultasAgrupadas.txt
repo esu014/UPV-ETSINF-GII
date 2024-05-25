@@ -1,0 +1,187 @@
+--CONSULTAS AGRUPADAS
+--CINE:
+--39 
+select l.cod_lib, l.titulo, COUNT(*)
+from LIBRO_PELI l, pelicula p
+where p.cod_lib = l.cod_lib
+group by l.cod_lib, l.titulo
+Having count(*) > 1;
+
+--40 
+select g.cod_gen, g.nombre, count(*), round(avg(p.duracion))
+from genero g, clasificacion c, pelicula p
+where p.cod_peli = c.cod_peli and g.cod_gen = c.cod_gen
+group by g.cod_gen, g.nombre
+having count(*) > 5
+order by g.nombre;
+
+--41
+select p.cod_peli, p.titulo, COUNT(c.cod_gen)
+from pelicula p, clasificacion c
+where anyo > 2000 and p.cod_peli = c.cod_peli
+group by p.cod_peli, p.titulo
+order by p.titulo;
+
+--42
+select p.director
+from pelicula p, pelicula p1
+where p.director like '%George%' and p.cod_peli = p1.cod_peli
+group by p.director
+having count(p.cod_peli) = 2;
+
+--43
+select p.cod_peli, p.titulo, count(ac.cod_act)
+from pelicula p, clasificacion c, actua ac
+where p.cod_peli = ac.cod_peli and p.cod_peli = c.cod_peli
+group by p.cod_peli, p.titulo
+having count(distinct c.cod_gen)=1 --aqui va un distinct y no tengo muy claro el porque
+order by p.titulo;
+
+--44
+select pa.cod_pais, pa.nombre, count(distinct a.cod_act)
+from pais pa, actor a, actua ac, pelicula p
+where pa.cod_pais = a.cod_pais 
+and a.cod_act = ac.cod_act 
+and ac.cod_peli = p.cod_peli 
+and p.anyo between 1960 and 1969
+group by pa.cod_pais, pa.nombre;
+
+--45
+select g.cod_gen, g.nombre
+from genero g, clasificacion c
+where c.cod_gen = g.cod_gen
+group by g.cod_gen, g.nombre
+having count(DISTINCT c.cod_peli) >=ALL(
+    select count(distinct c1.cod_peli) --contar las peliculas que hay
+    from clasificacion c1
+    group by c1.cod_gen --agrupada por generos
+);
+
+--46
+select l.cod_lib, l.titulo, l.autor
+from libro_peli l, pelicula p
+where p.cod_lib = l.cod_lib
+group by l.cod_lib, l.titulo, l.autor
+having count(distinct p.cod_peli) >= ALL(
+    select count(distinct p1.cod_peli)
+    from pelicula p1
+    where p1.cod_lib is not null --por que?
+    group by p1.cod_lib
+);
+
+--47: no me sale
+select pa.cod_pais, pa.nombre
+from pais pa, actor a, actua ac
+where pa.cod_pais = a.cod_pais
+and a.cod_act = ac.cod_act 
+group by pa.cod_pais, pa.nombre
+having count(distinct ac.cod_act) >= ALL(
+    select count(ac1.cod_act)
+    from actua ac1
+    group by ac1.cod_act
+    having count(distinct ac1.cod_peli) = 2
+); --repetir mas adelante
+
+--48
+select extract(year from a.fecha_nac) AÑO, COUNT(*)
+from actor a
+group by extract(year from a.fecha_nac)
+having count(*) > 3
+order by extract(year from a.fecha_nac);
+
+--49 = 36 con group by:
+select p.cod_peli, p.titulo
+from pelicula p, actua ac, actor a
+where p.cod_peli = ac.cod_peli and ac.cod_act = a.cod_act and p.duracion <100
+group by p.cod_peli, p.titulo
+having count(distinct a.cod_pais) = 1;
+
+--MUSICA
+--20
+select g.nombre, sum(c.num) fans
+from grupo g, club c
+where g.pais = 'España' and c.cod_gru = g.cod
+group by g.nombre;
+
+--21
+select g.nombre, count(p.funcion)
+from grupo g, pertenece p
+where g.cod = p.cod
+group by g.nombre, g.cod
+having count(p.funcion) > 2
+order by g.nombre;
+
+--22
+select g.nombre, count(d.cod)
+from grupo g, disco d
+where g.cod = d.cod_gru
+group by g.cod, g.nombre;
+
+--23
+select co.nombre, count(*), co.dir
+from COMPANYIA co, disco d, esta e, cancion c
+where co.cod = d.cod_comp and d.cod = e.cod and e.can =c.cod
+group by co.cod, co.nombre, co.dir;
+
+--cliclismo
+---31
+select e.netapa, count(*) Puertos
+from etapa e, puerto p
+where e.netapa = p.netapa
+group by e.netapa
+order by e.netapa;
+
+--32
+select e.nomeq, count(*) Ciclista
+from equipo e, ciclista c
+where e.nomeq = c.nomeq
+group by e.nomeq
+order by e.nomeq;
+
+--33
+select nomeq, count(dorsal)
+from equipo natural left join ciclista
+group by nomeq
+order by nomeq;
+
+--34
+select e.director, e.nomeq
+from equipo e, ciclista c
+where e.nomeq = c.nomeq
+group by e.nomeq, e.director
+having count(*)>3 and AVG(c.edad) <= 30
+order by e.director;
+
+--35
+select distinct c.nombre, count(e.dorsal) Etapas
+from ciclista c, etapa e, equipo eq
+where e.dorsal = c.dorsal and eq.nomeq = c.nomeq
+and 5 < (
+    select count(c1.nomeq)
+    from ciclista c1
+    where c1.nomeq = eq.nomeq
+)
+group by c.nombre, c.dorsal
+order by c.nombre;
+
+--36
+select nomeq, round(avg(c.edad))
+from ciclista c
+group by nomeq
+having AVG(c.edad)>=ALL(
+    select AVG(c1.edad)
+    from ciclista c1
+    group by nomeq
+);
+
+--37
+select e.director
+from equipo e, ciclista c, llevar l
+where c.nomeq = e.nomeq and c.dorsal = l.dorsal
+group by e.nomeq, e.director
+having count(c.dorsal)>=ALL(
+    select count(c1.dorsal)
+    from ciclista c1, equipo e1, llevar l1
+    where c1.nomeq = e1.nomeq and l1.dorsal = c1.dorsal
+    group by e1.nomeq
+);

@@ -1,0 +1,472 @@
+--preguntas de tipo cuantificador universal
+--biblioteca
+select a.nombre
+from amigo a
+where not exists(
+    select *
+    from escribir e
+    where e.autor_id = 'GUAP'
+    and e.cod_ob not in (
+        select l.cod_ob
+        from leer l
+        where l.num = a.num
+    )
+)
+and exists (
+    select *
+    from leer l, escribir e
+    where l.num = a.num 
+    and e.autor_id = 'GUAP'
+);
+--repasar
+select distinct nombre
+fROM amigo, leer, escribir e1
+WHERE amigo.num = leer.num
+AND leer.cod_ob = e1.cod_ob
+AND NOT EXISTS (
+    SELECT *
+    FROM escribir
+    WHERE autor_id = e1.autor_id
+    AND cod_ob NOT IN (
+        SELECT cod_ob
+        FROM leer
+        WHERE num = amigo.num
+    )
+);
+
+select a.nombre
+from amigo a
+where not exists(
+    select *
+    from leer l
+    where l.num = a.num
+    and l.cod_ob not in (
+        select e.cod_ob
+        from escribir e
+        where e.autor_id='CAMA'
+    )
+)
+and exists(
+    select *
+    from escribir e1
+    where e1.autor_id = 'CAMA'
+    and exists(
+        select *
+        from leer l1
+        where l1.num = a.num
+    )
+);
+
+select a.nombre
+from amigo a
+where not exists(
+    select *
+    from leer l
+    where l.num = a.num
+    and not exists(
+        select *
+        from leer l1
+        where l1.num = a.num and l1.cod_ob in (
+            select e1.cod_ob
+            from escribir e1
+            where e1.autor_id in(
+                select e2.autor_id
+                from escribir e2
+            )
+        )
+
+    )
+)
+and exists(
+    select *
+    from leer l2
+    where l2.num = a.num
+    and l2.cod_ob in (
+        select e3.cod_ob
+        from escribir e3
+        where e3.autor_id IN(
+            select e4.autor_id
+            from escribir e4
+        )
+    )
+);
+
+--ciclismo
+--24: Obtener el valor del atributo netapa de aquellas etapas tales que para todos los puertos que están en ellas se cumple que tienen más de 700 metros de altura
+-- traduccion: no existe puerto de esa estapa y no tiene una altura de más de 700 m
+select e.netapa
+from etapa e
+where not exists(
+    select *
+    from puerto p
+    where e.netapa = p.netapa
+    and not altura > 700
+)
+and exists(
+    select *
+    from puerto p1
+    where p1.netapa = e.netapa
+)
+order by e.netapa;
+
+--25: Obtener el nombre y el director de los equipos tales que todos sus ciclistas se cumple que son mayores de 25 años.
+-- traduccion: no existen ciclistas de ese equipo y no son mayores de 25 años
+select e.nomeq, e.director
+from equipo e
+where not exists(
+    select *
+    from ciclista c
+    where e.nomeq = c.nomeq
+    and not edad > 25
+)
+and exists(
+    select *
+    from ciclista c1
+    where c1.nomeq = e.nomeq
+)
+order by nomeq;
+
+--26: Obtener el dorsal y el nombre de los ciclistas tales que todas las etapas que han ganado tienen más de 170 km (es decir que sólo han ganado etapas de más de 170 km).
+--traduccion: no existen etapas en las que hayan ganado y no tienen más de 170km
+select c.dorsal, c.nombre
+from ciclista c
+where not exists(
+    select *
+    from etapa e
+    where e.dorsal = c.dorsal
+    and not e.km > 170
+)
+and exists(
+    select *
+    from etapa e1
+    where e1.dorsal = c.dorsal
+)
+order by c.dorsal;
+
+--27: Obtener el nombre de los ciclistas que han ganado todos los puertos de una etapa y han ganado esa misma etapa.
+--traduccion: no existen puertos en los que hayan ganado todo un ciclista y no hayan ganado la etapa
+select c.nombre
+from ciclista c
+where not exists(
+    select *
+    from puerto p
+    where p.netapa in(
+        select p1.netapa
+        from puerto p1
+        where c.dorsal = p1.dorsal
+    )
+    and not c.dorsal in(
+        select e.dorsal
+        from etapa e
+    )
+)
+and exists(
+    select *
+    from etapa e1
+    where e1.dorsal = c.dorsal and e1.netapa in (
+        select p1.netapa
+        from puerto p1
+        where p1.dorsal = c.dorsal
+    )
+)
+order by c.nombre;
+--otra solucion (sacada traduciendo poco a poco el enunciado)
+select c.nombre
+from ciclista c
+where c.dorsal in (
+    select e.dorsal
+    from etapa e
+    where e.netapa in(
+        select p.netapa
+        from puerto p
+        where p.netapa in (
+            select p1.netapa
+            from puerto p1
+            where p1.dorsal = c.dorsal
+        )
+    )
+);
+
+--28: Obtener el nombre de los equipos tales que todos sus corredores se cumple que han llevado algún maillot o se cumple que han ganado algún puerto
+-- traduccion: no existen corredores y no hayan llevado mallot y no han ganado algun puerto
+select e.nomeq
+from equipo e
+where not exists(
+    select *
+    from ciclista c
+    where c.nomeq = e.nomeq --no existen corredores de ese equipo
+    and not c.dorsal in( --no han llevado mallot
+        select ll.dorsal
+        from llevar ll
+    )
+    and not c.dorsal in (--no han ganado algun puerto
+        select p.dorsal
+        from puerto p
+    )
+)
+and exists( --existe equipo con ciclistas, porque pueden colarse equipos que no tengan ciclistas
+    select *
+    from ciclista c1
+    where c1.nomeq = e.nomeq
+);
+
+--29: Obtener el código y el color de aquellos maillots "se cumplen que" que sólo han sido llevados  por ciclistas de un mismo equipo.
+--traduccion: no existe mallots y no llevados solo por gente del mismo equipo
+--repasar este, solucion de wuolah
+SELECT codigo, color
+FROM maillot
+WHERE codigo IN (
+    SELECT codigo
+    FROM llevar
+    WHERE dorsal IN (
+        SELECT dorsal
+        FROM ciclista c --maillot que ha sido llevado por un ciclista
+        WHERE NOT EXISTS (
+            SELECT *
+            FROM ciclista
+            WHERE dorsal IN (
+                SELECT dorsal
+                FROM llevar
+                WHERE codigo = maillot.codigo
+            ) AND nomeq <> c.nomeq
+        )
+    )
+);
+--30: Obtener el nombre de aquellos equipos tales que sus ciclistas sólo hayan ganado puertos de 1ª categoría.
+--traduccion: no existe ciclistas de esos equipos y no solo han ganado puertos de 1ªcategora
+select e.nomeq
+from equipo e
+where not exists(
+    select *
+    from ciclista c
+    where c.nomeq = e.nomeq --no existen ciclistas de ese equipo
+    and c.dorsal in(
+        select p.dorsal
+        from puerto p
+        where categoria <>'1' --que no solo hayan ganado puertos de 1ªcategoria
+    )
+)
+and exists( --tienen que haber ciclistas y ganadores
+    select *
+    from ciclista c1
+    where c1.nomeq = e.nomeq
+    and c1.dorsal in(
+        select p1.dorsal
+        from puerto p1
+    )
+);
+
+--CINE
+--32: Obtener el código y el nombre de los países con actores y tales que todos los actores de ese país "se cumple que" han nacido en el siglo XX (ordenados por nombre).
+--traduccion: no existe actor de ese pais y no han nacido en el siglo 20
+select p.cod_pais, p.nombre
+from pais p
+where not exists(
+    select *
+    from actor a
+    where a.cod_pais = p.cod_pais --no existe actor de ese pais
+    and EXTRACT(Year from a.fecha_nac) not between 1900 and 1999 --no han nacido en el siglo 20 (aunque realmemte el siglo 20 va desde el 1901 hasta el 2000 pero bueno)
+)
+and exists(
+    select * --tiene que existir actor de ese pais 
+    from actor a1
+    where a1.cod_pais = p.cod_pais
+)
+order by p.nombre;
+
+--33: Obtener el código y el nombre de los actores tales que todos los papeles que han tenido "se cumple que" son de ‘Secundario’. Sólo interesan aquellos actores que hayan actuado en alguna película.
+--traduccion no existe actores que todos los papeles que han tenido y no son secundarios
+select a.cod_act, a.nombre
+from actor a
+where not exists(
+    select *
+    from actua ac
+    where ac.cod_act = a.cod_act
+    and not ac.papel = 'Secundario'
+)
+and EXISTS(
+    select *
+    from actua ac1
+    where ac1.cod_act = a.cod_act
+)
+order by a.nombre;
+
+--34: Obtener el código y el nombre de los actores que han aparecido "se cumple que" en todas las películas  son del director ‘Guy Ritchie’ (sólo si ha dirigido al menos una).
+--traduccion: no existen actores que han actuado y no en todas las peliculas  son del director...
+select a.cod_act, a.nombre
+from actor a
+where not exists(
+    select *
+    from actua ac
+    where ac.cod_act = a.cod_act
+    and not exists(
+        select *
+        from actua ac1
+        where ac1.cod_act = a.cod_act and ac1.cod_peli in(
+            select p.cod_peli
+            from pelicula p
+            where p.director = 'Guy Ritchie'
+        )
+    )
+)and exists(
+    select *
+    from actua ac1
+    where ac1.cod_act = a.cod_act and exists(
+        select *
+        from pelicula p1
+        where p1.director = 'Guy Ritchie'
+    )
+);
+
+--35: lo mismo pero con otro director: John Steel
+select a.cod_act, a.nombre
+from actor a
+where not exists(
+    select *
+    from actua ac
+    where ac.cod_act = a.cod_act
+    and not exists(
+        select *
+        from actua ac1
+        where ac1.cod_act = a.cod_act and ac1.cod_peli in(
+            select p.cod_peli
+            from pelicula p
+            where p.director = 'John Steel'
+        )
+    )
+)and exists(
+    select *
+    from actua ac1
+    where ac1.cod_act = a.cod_act and exists(
+        select *
+        from pelicula p1
+        where p1.director = 'John Steel'
+    )
+);
+
+--36:Obtener el código y el título de las "Para todas las" películas de menos de 100 minutos,todos los actores que han actuado "se cumple que" son de un mismo país.
+-- traduccion: no existen peliculas de menos de 100 minutods en las que todos los que han actuado y no son del mismo pais
+select p.cod_peli, p.titulo
+from pelicula p
+where p.duracion < 100 and not exists(
+    select * 
+    from actua ac
+    where ac.cod_peli = p.cod_peli
+    and not exists(
+        select *
+        from actua ac1
+        where ac1.cod_peli = p.cod_peli 
+        and ac1.cod_act in(
+            select a.cod_act
+            from actor a
+            where exists (
+                select *
+                from actor a1
+                where a1.cod_pais = a.cod_pais
+            )
+        )
+    )
+)and exists(
+    select *
+    from actua ac3
+    where ac3.cod_peli = p.cod_peli
+    and ac3.cod_act in(
+        select ac4.cod_act
+        from actua ac4
+        where exists(
+            select *
+            from actor a2
+            where ac4.cod_act =a2.cod_act and a2.cod_pais in(
+                select a3.cod_pais
+                from actor a3
+            )
+        )
+    )
+); --se me cuela "Mi novio es un ladron"
+
+SELECT P.cod_peli, P.titulo
+FROM PELICULA P
+WHERE  NOT EXISTS (
+    SELECT AC.cod_act
+    FROM ACTUA AC
+    WHERE AC.cod_peli = P.cod_peli and P.duracion < 100
+    AND NOT EXISTS (
+        SELECT AC1.cod_act
+        FROM ACTUA AC1, ACTOR A1
+        WHERE AC1.cod_act = A1.cod_act
+        AND AC1.cod_peli = P.cod_peli
+        AND NOT EXISTS (
+            SELECT A2.cod_pais
+            FROM ACTUA AC2, ACTOR A2
+            WHERE AC2.cod_act = A2.cod_act
+            AND AC2.cod_peli = P.cod_peli
+            AND A2.cod_pais <> A1.cod_pais
+        )
+    )
+)
+and exists(
+    select *
+    from actua ac3
+    where ac3.cod_peli = p.cod_peli and p.duracion < 100
+); --solucion
+
+--37
+select p.cod_peli, p.titulo, p.anyo
+from pelicula p
+where not exists(
+    select *
+    from actua ac
+    where ac.cod_peli = p.cod_peli
+    and exists(
+        select *
+        from actua ac1
+        where ac1.cod_peli = p.cod_peli and ac1.cod_act not in(
+            select a.cod_act 
+            from actor a 
+            where extract(year from a.fecha_nac) < 1943 
+        )
+    )
+)
+and exists(
+    select *
+    from actua ac2
+    where ac2.cod_peli = p.cod_peli and exists(
+        select *
+        from actor a1
+        where extract( year from a1.fecha_nac ) < 1943
+    )
+)
+order by p.titulo;
+
+--38 
+select pa.cod_pais, pa.nombre
+from pais pa
+where not exists(
+    select *
+    from actor a
+    where pa.cod_pais = a.cod_pais and a.cod_act in (
+        select ac.cod_act
+        from actua ac
+    )
+    and not exists(
+        select *
+        from actua ac1
+        where ac1.cod_act = a.cod_act and ac1.cod_peli in (
+            select p.cod_peli
+            from pelicula p
+            where p.duracion >120
+        )
+    )
+)
+and exists(
+    select *
+    from actor a1
+    where a1.cod_pais = pa.cod_pais and a1.cod_act in (
+        select ac2.cod_act
+        from actua ac2
+    )and exists(
+        select *
+        from pelicula 
+        where duracion > 120
+    )
+);
