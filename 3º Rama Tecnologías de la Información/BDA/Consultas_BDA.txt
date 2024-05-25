@@ -1,0 +1,75 @@
+Select min(anyo)
+From Pelicula
+where cod_peli IN(
+    Select cod_peli From Actua Where papel ='Principal' and cod_act IN(
+        Select cod_act From Actor Where nombre ='Jude Law'));
+        
+Select cod_act, nombre
+From Actor
+Where fecha_nac IN(
+    Select min(fecha_nac) From Actor);
+
+Select cod_act, nombre, fecha_nac
+From Actor
+Where fecha_nac IN(
+    Select min(fecha_nac) From Actor Where fecha_nac LIKE '%1940');
+
+Select nombre
+From Genero
+Where cod_gen IN(
+    Select cod_gen From Clasificacion Where cod_peli IN(
+        Select cod_peli From Pelicula Where duracion IN (
+            Select max(duracion) From Pelicula)));
+
+Select cod_lib, titulo
+From Libro_peli
+Where cod_lib IN(
+    Select cod_lib From Pelicula Where cod_lib IS NOT NULL and cod_peli IN(
+        Select cod_peli From Actua Where cod_act IN(
+            Select cod_act From Actor Where cod_pais IN(
+                Select cod_pais From Pais Where nombre ='España'))))
+Order by titulo;
+
+Select titulo
+From Pelicula
+Where anyo < 1950 AND cod_peli IN(
+    Select A.cod_peli From Clasificacion A Where EXISTS(
+        Select 1 From Clasificacion B Where A.cod_peli = B.cod_peli AND A.cod_gen <> B.cod_gen));
+
+SELECT COUNT(P.titulo)
+FROM Pelicula P
+WHERE P.cod_peli NOT IN (
+        SELECT A1.cod_peli
+        FROM Actua A1
+        WHERE (
+                SELECT COUNT(DISTINCT A2.cod_act)
+                FROM Actua A2
+                WHERE A2.cod_peli = A1.cod_peli
+                ) >= 4
+);
+
+Select DISTINCT A.director 
+From Pelicula A
+Where 250 < (Select sum(B.duracion)
+             From Pelicula B
+             Where B.director = A.director);
+
+Select Distinct EXTRACT(YEAR FROM A.fecha_nac) AS AnioNacimiento
+From Actor A
+Where 3 < (Select COUNT(*)
+           From Actor B
+           Where EXTRACT(YEAR FROM B.fecha_nac) = EXTRACT(YEAR FROM A.fecha_nac));
+
+Select A1.cod_act, A1.nombre 
+From Actor A1
+Where A1.fecha_nac = (Select max(A2.fecha_nac)
+                        From Actor A2
+                        Where A2.cod_act In (Select A.cod_act 
+                                                From Actua A
+                                                 Where cod_peli IN (
+                                                       Select P.cod_peli
+                                                       From Pelicula P
+                                                       Where p.cod_peli IN(
+                                                              Select C.cod_peli
+                                                              From Clasificacion C
+                                                              Where C.cod_gen = 'DD8'))))

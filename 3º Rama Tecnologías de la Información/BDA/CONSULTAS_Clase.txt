@@ -1,0 +1,95 @@
+--Ejercicio 22. Consultas Universales (BSD Lecturas)
+Select Distinc A.nombre
+From Amigo A, Leer L, Escribir E
+Where A.num = L.num And L.cod_ob = E.cod_ob And NOT EXISTS (
+    Select *
+    From Escribir E1
+    Where E1.autor_id = E.autor_id And NOT EXISTS(
+        Select *
+        From Leer L1
+        Where L1.cod_ob = E1.cod_ob And L1.num = A.num
+    )
+); --Esta bien
+
+--Ejercicio 26. Obtener el nombre de los amigos tales que todas las obras que han leido son del mismo autor
+Select A.nombre
+From Amigo A
+Where Not Exists (
+    Select *
+    From Leer L, Escribir E
+    Where L.num = A.num And L.cod_ob = E.cod_ob And EXISTS (
+        Select *
+        From Leer L1, Escribir E1
+        Where L1.num = L.num And E1.cod_ob = L1.cod_ob And E1.autor_id <>E.autor_id
+    )
+)--No esta bien
+
+--Ejercicio 28. Obtener el nombre de los amigos que han leido todas las obras de algun autor y no han leido nada de ningun otro indicando tambien el nombre del autor.
+--Transformacion de pregunta: 
+    --Amigos
+    --Para toda obra de un autor
+    --Implica que lo ha leido un amigo
+--Hay dos para todo:
+    --Amigos
+    --Para toda obra de otra autor
+    --No la ha leido
+Select A.nombre
+From Amigo A, Leer L, Escribir E
+Where A.num = L.num And L.cod_ob = E.cod_ob And Not Exists (
+    Select * 
+    From Leer L1, Escribir E1
+    Where L1.num = A.num And E1.autor_id<>E.autor_id
+)
+--Primer para todo (el de arriba, a partir del where)
+And Not Exists(
+    Select * 
+    From Escribir E2
+    Where E2.autor_id <> E.autor_id And Exists (
+        Select *
+        From Leer L2
+        Where L2.num = L.num
+    )
+);--Segundo Paratodo
+--No esta bien
+
+--Ejericio 32
+Select O.tematica, count(*)
+From Obra Obra
+Group By O.tematica
+    UNION
+Select T.tematica
+From Tematica T
+Where T.tematica NOT IN ( --Cuando utilizamos un not in, hay que prevenir que se puedan devolver valores nulos
+    Select tematica
+    From Obra
+    Where temática is not NULL --por eso se previene este problema con el "is not null"
+); --No funciona
+
+--Otra opcion para resolver
+Select T.tematica, count(O.cod_ob)
+From Tema T left join Obra O on T.Tematica = O.tematica
+Group By T.tematica; 
+--Esta si que funciona
+
+--Pregunta 52. BDA Peliculas
+SELECT P.cod_pais, P.nombre, count(distinct Ac.papel)
+FROM Pais P left join Actor A on (P.cod_pais = A.cod_pais)
+            left join Actua Ac on (A.cod_act = Ac.cod_act And Ac.papel = 'Secundario');
+
+--Otra opcioin
+SELECT P.cod_pais, P.nombre, count(distinct Ac.papel)
+FROM Pais P left join (Actor A left join Actua Ac on A.cod_act = Ac.cod_act And Ac.papel = 'Secundiario')
+            on P.cod_pais = A.cod_pais
+Group by P.cod_pais, P.nombre;
+
+--Pregunta 56
+Select A.nombre, A.fecha_nac, count(Ac1.papel)
+From Actor A left join Actua Ac1 on(
+    A.cod_act = Ac1.cod_act And Ac1.papel = 'principal'
+)
+Where A.fecha_nac <'01/01/1948' And (
+    Select count(*)
+    From Actua Ac
+    Where Ac.cod_act = A.cod_act
+)>=2
+Group By A.nombre, A.fecha_nac, A.cod_act
