@@ -131,17 +131,87 @@ En el reto 3 se pide procesar un fichero de entrada y realizar las siguientes ta
 
 - Crear infraestructura para cada proyecto:
 
-     - Crear carpeta del proyecto: Crear la carpeta del proyecto en C:\Temp-Diseños\ de SW2 si no existe.
+    - Crear carpeta del proyecto: Crear la carpeta del proyecto en C:\Temp-Diseños\ de SW2 si no existe.
     - Crear grupo ACL: Crear un grupo de ámbito de dominio local ("grupo ACL") en la unidad temporal "Recursos". Este grupo debe nombrarse como "ACL-proyecto-nivel" (por ejemplo, "ACL-Peli2001-gestion").
     - Asignar permisos: Asignar al grupo ACL el permiso correspondiente al nivel de acceso en la carpeta del proyecto, utilizando el permiso estándar de menor rango que permita las operaciones asociadas a ese nivel.
 - Gestión de errores: Ante cualquier línea incorrecta en el fichero, el script no debe realizar las tareas anteriores, sino imprimir un mensaje de error en pantalla, detallando claramente el motivo del error y el valor del atributo que lo produjo. Si la misma línea contiene varios errores, el script puede informar del primero que detecte o de todos ellos. No es necesario hacer referencia a errores en líneas anteriores.
 
 ### Solución 
+Obtener los datos iniciales del fichero y guradarlos en variables para luego operar con ellos:
+```powershell
+$dn_contenedor = "ou=Recursos,ou=Diseño,ou=Temp-UO,dc=admon,dc=lab"
+$CSV = ".\proy-niveles.csv"
+import-csv -path $csv | ForEach-Object{
+    [string]$proyecto = $_.proyecto
+    [string] $niveles = $_.niveles
+    Write-Host $proyecto
+    $lista_niveles = $niveles -split "/"
+    $linea_correcta = $true
+    $ruta_a_carpeta = "$carpeta\$proyecto"
+```
+Comprobar los distintos casos en los que puede dar error a la hora de crear los recursos:
+```powershell
+    # Verifica si el proyecto o los niveles están vacíos
+    if($proyecto -eq "" -or $niveles -eq ""){
+        $linea_correcta = $false
+        Write-Host "Faltan valores" -ForegroundColor Magenta
+    }
+    # Verifica si la carpeta del proyecto ya existe
+    elseif(Test-Path -Path $ruta_a_carpeta -PathType Container){
+        $linea_correcta = $false
+        Write-Host "Carpeta ya existe" -ForegroundColor Magenta
+    }
+    $NIVELES_ASOCIADOS = @("gestion","supervision","trabajo","lectura")
+    foreach ($nivel in $lista_niveles){
+        # Verifica si el nivel es válido
+        if ( $nivel -notin $NIVELES_ASOCIADOS){
+            $linea_correcta = $false
+            Write-Host "Nivel no valido" -ForegroundColor Magenta
+            break
+        }
+    }
+```
+Si la línea es correcta, crea la carpeta del proyecto y muestra un mensaje de confirmación y para cada nivel válido, crea un grupo ACL y asigna los permisos correspondientes a la carpeta del proyecto utilizando la función Add-ACE para configurar los permisos de acceso.
+```powershell
+    if($linea_correcta -eq $true){
+        # Crea la carpeta del proyecto
+        New-Item -Path $ruta_a_carpeta -ItemType Directory
+        Write-Host "Carpeta creada en : $ruta_a_carpeta"
 
+        foreach ($nivel in $lista_niveles){
+            # Genera el nombre del grupo ACL
+            $ngrp = "ACL-$proyecto-$nivel"
+            # Crea el grupo ACL en AD
+            New-ADGroup -Name $ngrp -GroupScope "DomainLocal" -Path $dn_contenedor
 
+            # Asigna permisos a la carpeta del proyecto según el nivel
+            switch($nivel){
+                "gestion" {
+                    Add-ACE -Path $ruta_a_carpeta -group $ngrp -permission "FullControl"
+                    break
+                }
+                "supervision" {
+                    Add-ACE -Path $ruta_a_carpeta -group $ngrp -permission "ReadAndExecute"
+                    Add-ACE -Path $ruta_a_carpeta -group $ngrp -permission "Write"
+                    break
+                }
+                "trabajo" {
+                    Add-ACE -Path $ruta_a_carpeta -group $ngrp -permission "Modify"
+                    break
+                }
+                "lectura" {
+                    Add-ACE -Path $ruta_a_carpeta -group $ngrp -permission "ReadAndExecute"
+                    break
+                }
+            }
+        }
+    }
+}#llave del ForEach inicial
+```
 ### Reto 4
 
-
+completar 
 
 ### Reto 5
 
+completar
