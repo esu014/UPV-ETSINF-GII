@@ -1,10 +1,12 @@
 # SIN 23-24
-
-
-
-## Práctica 1
-
-
-
-## Práctica 2
-
+## Introcución
+El código publicado en esta carpeta del repositorio incluye los dos grandes bloques de las prácticas de laboratorio de la asignatura de Sistemas Inteligentes (SIN). 
+## Prácticas
+En cuanto a las prácticas, no son muy complicados los examenes. El examen de la primera práctica, lo que hay que programar en una tonteria, si se han hecho las prácticas claro (o si se tienen resueltas). Evalua más los conocimientos de teoría que las habilidades de programar en python.
+El examen de la práctica 2, es algo más complicado porque además de introducir conceptos de teoría, a la hora de programar es más dificil, o por lo menos a mi parecer, así lo era.
+### Práctica 1
+El bloque de la práctica 1, describe el problema del juego de hacer un cuadrado con los numeros ordenados en circulo del 1 al 8, y un hueco en medio vacio. El profesor te facilita un código incial en el que hay una interfaz y diversos metodos de ordenación/busqueda. En las primeras sesiones, solo se debe recopilar información que solicita el boletín. Pero a medida que avanzan las sesiones, se requiere la programación de dos nuevos algoritmos, ya vistos en clase, y su posterior recopilación, analisis de los datos y conclusiones de los mismos.
+El examen consiste en crear uno nuevo, ejecutar el escenario con los distintos algoritmos que tienes, apuntar los datos, analizarlos y despues responder a las cuestiones que se preguntan, justificando las respuestas con conceptos de teoría. 
+### Práctica 2
+En cuanto a la práctica 2, cambia la filosofía de las prácticas. Seguimos programando en python pero ahora el entorno de trabajo es [Google Colabs](https://colab.research.google.com). Este entorno, trabaja con archivos `.ipynb`, que es similar a un archivo `md` pero con la clara diferencia de que el código python que se introduce puede ser ejecutado. Es como si se fraccionara el código entre texto y zona ejecutable (en la cual importa el orden y tiene que estar todo como si de un archivo `.py` se tratara, no como en un acta que puedes poner solo lo destable). A la vez que tienes zonas de código, puedes tener zonas de texto como párrafos (obviamente no com si fuera código comentado).
+El examen de esta práctica era programar en el archivo mencionado anteriormente y sobre el mismo escribir las respuestas y conclusiones a las preguntas que habia en el archivo del examen. La temática del examen es sobre _"Machine Learning"_, de lo que trata la segunda parte de la asignatura y las prácticas.
