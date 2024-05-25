@@ -6,8 +6,7 @@ Proyecto UPVTube.
 ## Información
 
 El trabajo ha sido realizado por los alumnos Anass Lambaraa y Enrique Sopeña. 
-Éste consistía en diseñar una Aplicación de escritorio similar a la que tiene la UPV, [MediaUPV](https://media.upv.es)
-
+Éste consistía en diseñar una Aplicación de escritorio similar a la que tiene la UPV, [MediaUPV](https://media.upv.es).
 Normalmente los proyectos suelen ser similares a los de otros años pero no igual, por lo que puede haber código reutilizable. 
 El proyecto se realiza en el lenguaje `C#`, así que es de gran utilidad, si no habeis tocado nunca el lenguaje, leer un poco él código (además de lo que se trabaja en clase)
 
