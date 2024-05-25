@@ -11,7 +11,7 @@ El trabajo está realizado por los alumnos: Pau Pérez, Pau Amorós, Carlos Cebe
 
 ### Introducción de la primera parte de prácticas
 
-En cuanto la primera parte de prácticas, se puede encontrar la solución a varias de las cuestiones en [personales.alumno.upv.es/esopurb/dew](http://personales.alumno.upv.es/esopurb/dew/)
+En cuanto la primera parte de prácticas, se puede encontrar la solución a varias de las cuestiones en [personales.alumno.upv.es/esopurb/dew](http://personales.alumno.upv.es/esopurb/dew/).
 
 Para acceder a los enunciados de las prácticas basta con poner esto en el navegador: [personales.upv.es/rgarcia/dew](http://personales.upv.es/rgarcia/dew1/)
 
@@ -25,7 +25,7 @@ El proyecto consiste en crear una aplicación web en la que los alumnos pueden c
 
 En el examen de prácticas de las sesiones 1 a la 4, he obtenido un **8,6**, que no está mal. Es un examen asequible y probablemente me haya restado puntuación por alguna tonteria (no lo se no fui a la revisión). 
 
-Como recomendación considero que lo que hace falta para aprobar de sobra el examen es hacer las prácticas, practicar los examenes que hay de ejemplo y aprender bien como funciona el lanzar una aplicacion en el servidor de tomcat (desde generar el proyecto a lanzarlo en el servidor). Esto último es la sesión 4, y está grabada en PoliFormaT.
+Como recomendación considero que lo que hace falta para aprobar de sobra el examen es hacer las prácticas, practicar los examenes que hay de ejemplo y aprender bien como funciona el lanzar una aplicación en el servidor de tomcat (desde generar el proyecto hasta lanzarlo en el servidor). Esto último es la sesión 4, y está grabada en PoliFormaT.
 
 ### Entregas del proyecto
 
