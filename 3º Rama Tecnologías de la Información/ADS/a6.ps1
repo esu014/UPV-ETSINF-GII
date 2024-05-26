@@ -300,7 +300,7 @@ import-csv -path $csv | ForEach-Object{
                 break
             }
         }
-}
+    }
 
     #comprobar si existe el grupo de rol
     $grupo = "$proyecto-$rol"

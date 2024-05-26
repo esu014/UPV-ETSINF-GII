@@ -134,7 +134,7 @@ En el reto 3 se pide procesar un fichero de entrada y realizar las siguientes ta
     - Crear carpeta del proyecto: Crear la carpeta del proyecto en C:\Temp-Diseños\ de SW2 si no existe.
     - Crear grupo ACL: Crear un grupo de ámbito de dominio local ("grupo ACL") en la unidad temporal "Recursos". Este grupo debe nombrarse como "ACL-proyecto-nivel" (por ejemplo, "ACL-Peli2001-gestion").
     - Asignar permisos: Asignar al grupo ACL el permiso correspondiente al nivel de acceso en la carpeta del proyecto, utilizando el permiso estándar de menor rango que permita las operaciones asociadas a ese nivel.
-- Gestión de errores: Ante cualquier línea incorrecta en el fichero, el script no debe realizar las tareas anteriores, sino imprimir un mensaje de error en pantalla, detallando claramente el motivo del error y el valor del atributo que lo produjo. Si la misma línea contiene varios errores, el script puede informar del primero que detecte o de todos ellos. No es necesario hacer referencia a errores en líneas anteriores.
+- Gestión de errores: Ante cualquier línea incorrecta en el fichero, el script no debe realizar las tareas anteriores, sino imprimir un mensaje de error en pantalla, detallando claramente el motivo del error y el valor del atributo que lo produjo.
 
 ### Solución 
 Obtener los datos iniciales del fichero y guradarlos en variables para luego operar con ellos:
@@ -209,9 +209,130 @@ Si la línea es correcta, crea la carpeta del proyecto y muestra un mensaje de c
 }#llave del ForEach inicial
 ```
 ### Reto 4
+En el reto 4 se pide procesar un fichero de entrada y realizar las siguientes tareas: crear los grupos de ámbito global necesarios para representar en el dominio los roles relacionados con el proyecto que aparecen en la línea, en la unidad temporal "Roles", y asignar a dichos grupos como miembros del "grupo ACL" que representa el nivel de acceso que aparece en la línea. 
+Ante cualquier línea incorrecta, el script debe imprimir un mensaje de error en pantalla, detallando claramente el motivo del error y, en su caso, el valor del atributo que produce dicho error. 
 
-completar 
-
+### Solución:
+Obtener los datos iniciales del fichero y guradarlos en variables para luego operar con ellos:
+```powershell
+$dn_contenedor = "ou=Roles,ou=Diseño,ou=Temp-UO,dc=admon,dc=lab"
+$CSV = ".\proy-roles.csv"
+import-csv -path $csv | ForEach-Object{
+    [string] $proyecto = $_.proyecto
+    [string] $niveles = $_.nivel
+    [string] $roles = $_.roles
+    $lista_roles = $roles -split "/"
+    $linea_correcta = $true
+    $ruta_a_carpeta = "$carpeta\$proyecto"
+    Write-Host $ruta_a_carpeta
+```
+Comprobar los distintos casos en los que puede dar error a la hora de crear los recursos:
+```powershell
+    #comprobar si existe la carpeta
+    if( -not (Test-Path -Path $ruta_a_carpeta -PathType Container)){
+        $linea_correcta = $false
+        Write-Host "Error: no existe $proyecto" -ForegroundColor Magenta
+    }
+    #comprobar si los roles están en los que debe
+    $ROLES_ASOCIADOS = @("director","publicista","web","diseñador","ilustrador")
+    foreach ($roles in $lista_roles){
+        if ( $roles -notin $ROLES_ASOCIADOS){
+            $linea_correcta = $false
+            Write-Host "Error: Rol no valido" -ForegroundColor Magenta
+            break
+        }
+    }
+    #comprobar si alguno de los elementos de la lista estran vacios
+    if($proyecto -eq ""){
+        $linea_correcta = $false
+        Write-Host "Error: Proyecto vacio." -ForegroundColor Magenta
+    }
+    if($niveles -eq ""){
+        $linea_correcta = $false
+        Write-Host "Error: Nivel vacio." -ForegroundColor Magenta
+    }
+    $grupo = "ACL-$proyecto-$niveles"
+    [string] $nombre = Get-ADGroup -Filter {Name -eq $grupo}
+    if($nombre -eq ""){
+         $linea_correcta = $false
+        Write-Host "Error: $nivel no valido para este proyecto." -ForegroundColor Magenta
+    }
+    if($roles -eq ""){
+        $linea_correcta = $false
+        Write-Host "Error: Rol vacio." -ForegroundColor Magenta
+    }
+```
+Si está todo correcto, crea los grupos de ámbito global necesarios para representar los roles relacionados con el proyecto y asignarlos como miembros del grupo ACL correspondiente, pero solo si la línea del archivo CSV es válida:
+```powershell
+    if($linea_correcta -eq $true){
+        foreach ($roles in $lista_roles){
+            $nrol = "$proyecto-$roles"
+            $ngroup = "ACL-$proyecto-$niveles"
+            New-ADGroup -Name $nrol -GroupScope "Global" -Path $dn_contenedor
+            Add-ADGroupMember -Identity $ngroup -Members $nrol
+        }
+    }
+}#llave del ForEach inicial
+```
 ### Reto 5
-
-completar
+En el reto 5, a partir de un fichero de entrada, el script debe añadir al usuario o usuarios de la lista de empleados de cada línea al grupo de rol indicado en dicha línea. No es necesario comprobar si algún usuario ya formaba parte de ese grupo de rol, ya que volver a añadirlos no afecta a la composición definitiva del grupo.
+Ante cualquier línea incorrecta, el script no debe realizar las tareas anteriores, sino que debe imprimir un mensaje de error en pantalla, detallando claramente el motivo y, en su caso, el valor del atributo que produce dicho error.
+### Solución
+Como en los retos anteriores hay que obtener los datos iniciales del fichero y guradarlos en variables para luego operar con ellos:
+```powershell
+$dn_contenedor = "ou=Usuarios,ou=Diseño,ou=Temp-UO,dc=admon,dc=lab"
+$CSV = ".\proy-personas.csv"
+import-csv -path $csv | ForEach-Object{
+    [string] $proyecto = $_.proyecto
+    [string] $usuarios = $_.usuarios
+    [string] $rol = $_.rol
+    $lista_usuarios = $usuarios -split "/"
+    $linea_correcta = $true
+    $ruta_a_carpeta = "$carpeta\$proyecto"
+    Write-Host $ruta_a_carpeta
+```
+Después hay que comprobar los distintos casos en los que puede dar error a la hora de crear los recursos: 
+```powershell
+    #comprobar si existe el usuario
+    foreach($usuarios in $lista_usuarios){
+        #caso en el que este vacio, que no haya un usuario
+        if($usuarios -eq ""){
+            Write-Host "Error: El usuario está vacio" -ForegroundColor Magenta
+            $linea_correcta = $false
+            break
+        }else{
+            #caso en el que haya un usuario pero no exista
+            [string] $persona = Get-ADUser -Filter {Name -eq $usuarios}
+            if ($persona -eq "") {
+                Write-Host "Error: El usuario $usuarios no existe" -ForegroundColor Magenta
+                $linea_correcta = $false
+                break
+            }
+        }
+    }
+    #comprobar si existe el grupo de rol
+    $grupo = "$proyecto-$rol"
+    [string] $nombre = Get-ADGroup -Filter {Name -eq $grupo}
+    if($nombre -eq ""){
+        Write-Host "Error: El grupo $grupo no existe para ese proyecto" -ForegroundColor Magenta
+        $linea_correcta = $false            
+    }
+    #Comprobar si tienen valores tanto rol como proyecto, usuario esta arriba
+    if($proyecto -eq ""){
+        $linea_correcta = $false
+        Write-Host "Error: Proyecto vacio." -ForegroundColor Magenta
+    }
+    if($rol -eq ""){
+        $linea_correcta = $false
+        Write-Host "Error: Rol vacio." -ForegroundColor Magenta
+    }
+```
+Y finalmente si todo está correcto, se añaden los usuarios a un grupo de Active Directory, siempre y cuando la línea de datos que se está procesando sea correcta
+```powershell
+    if($linea_correcta -eq $true){
+        foreach($usuarios in $lista_usuarios){
+            Add-ADGroupMember -Identity $grupo -Members $usuarios
+        }
+    }
+}#llave del ForEach inicial
+```
