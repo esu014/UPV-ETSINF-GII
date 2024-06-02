@@ -1,0 +1,235 @@
+delete from construido;
+delete from ayudante;
+delete from unidad;
+delete from pide;
+delete from ciudad;
+delete from bueno;
+delete from malo;
+delete from constructor;
+delete from niño;
+delete from juguete;
+delete from pais;
+delete from elfo;
+
+SET SERVEROUTPUT ON;
+
+-- Elfo
+BEGIN
+  FOR i IN 0..9999 LOOP
+    INSERT INTO elfo (
+      id,
+      nombre
+    ) VALUES (
+      i,
+      DBMS_RANDOM.STRING('a', 100)
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- País
+BEGIN
+  FOR i IN 1..20 LOOP
+    INSERT INTO pais (
+      id,
+      nombre,
+      densidad
+    ) VALUES (
+      i,
+      DBMS_RANDOM.STRING('a', 100),
+      round(DBMS_Random.value(1,999),2)
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Niño
+BEGIN
+  FOR i IN 1..10000 LOOP
+    INSERT INTO niño (
+      id,
+      nombre,
+      direccion
+    ) VALUES (
+      i,
+      DBMS_RANDOM.STRING('a', 100),
+      DBMS_RANDOM.STRING('a', 100)
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Juguete
+BEGIN
+  FOR i IN 1..5000 LOOP
+    INSERT INTO juguete (
+      id,
+      nombre,
+      edad
+    ) VALUES (
+      i,
+      DBMS_RANDOM.STRING('a', 100),
+      round(DBMS_Random.value(1,99),0)
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Constructor
+DECLARE
+    cursor elfo_cur is select * from elfo order by id fetch next 1000 rows only;
+BEGIN
+  FOR v_elfo in elfo_cur LOOP
+    INSERT INTO constructor (
+      id
+    ) VALUES (
+      v_elfo.id
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Ciudad
+DECLARE
+    v_pais_id pais.id%TYPE;
+    v_random number;
+BEGIN
+  FOR i IN 1..200 LOOP
+    v_random := round(DBMS_Random.value(1,20),0);
+    select id into v_pais_id from pais WHERE id = v_random; 
+    INSERT INTO ciudad(
+      pais,
+      id,
+      nombre,
+      niño
+    ) VALUES (
+      v_pais_id,
+      i,
+      DBMS_RANDOM.STRING('a', 100),
+      round(DBMS_Random.value(1,99999),0)
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Malo
+DECLARE
+    v_malo niño.id%TYPE;
+BEGIN
+  FOR i IN 1..5000 LOOP
+    select id into v_malo from niño where id = i;
+    INSERT INTO malo(
+      id
+    ) VALUES (
+      v_malo
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Bueno
+DECLARE
+    v_bueno niño.id%TYPE;
+BEGIN
+  FOR i IN 5001..10000 LOOP
+    select id into v_bueno from niño where id = i;
+    INSERT INTO bueno(
+      id
+    ) VALUES (
+      v_bueno
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Pide 
+DECLARE
+    v_juguete_id juguete.id%TYPE;
+    v_niño_id niño.id%type;
+BEGIN
+  FOR i in 5001..10000 LOOP
+    select id into v_juguete_id from juguete where id = i-5000;
+    select id into v_niño_id from niño where id = i;
+    INSERT INTO pide(
+      niño,
+      juguete
+    ) VALUES (
+      v_niño_id,
+      v_juguete_id
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Unidad
+DECLARE
+    v_juguete_id juguete.id%TYPE;
+BEGIN
+  FOR i IN 1..5000 LOOP
+    select id into v_juguete_id from juguete where id = i;
+    INSERT INTO unidad(
+      juguete,
+      numero
+    ) VALUES (
+      v_juguete_id, i
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-- Ayudante
+DECLARE
+    v_id NUMBER(4);
+    v_pais NUMBER(3);
+    v_ciudad NUMBER(4);
+    v_hora NUMBER(4, 2);-- Número total de filas a insertar
+BEGIN
+    FOR i IN 1..9000 LOOP
+        v_id := i;
+        SELECT pais, id INTO v_pais, v_ciudad FROM (
+            SELECT pais, id FROM ciudad
+            ORDER BY DBMS_RANDOM.VALUE
+        ) WHERE ROWNUM = 1;
+        v_hora := ROUND(DBMS_RANDOM.VALUE(0, 23), 2);
+        INSERT INTO ayudante (id, pais, ciudad, hora) 
+        VALUES (v_id, v_pais, v_ciudad, v_hora);
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- Construido
+DECLARE
+    v_unidad_juguete NUMBER(6);
+    v_unidad_numero NUMBER(8);
+    v_constructor_id NUMBER(4);
+    v_hora NUMBER(4,2);
+    v_date DATE;
+    v_niño NUMBER(9);
+    v_bueno_pide bueno.id%TYPE;
+BEGIN
+    FOR i IN 5001..10000 LOOP
+        select juguete, niño into v_unidad_juguete, v_bueno_pide from pide where niño = i;
+        SELECT  u.numero into v_unidad_numero FROM  unidad u WHERE u.juguete = v_unidad_juguete;
+        SELECT id INTO v_constructor_id FROM (
+            SELECT id FROM constructor
+            ORDER BY DBMS_RANDOM.VALUE
+        ) WHERE ROWNUM = 1;
+        v_date := TO_DATE(TRUNC(DBMS_RANDOM.VALUE(TO_CHAR(DATE '2000-01-01', 'J'), TO_CHAR(DATE '2022-12-31', 'J'))), 'J');
+        v_hora := ROUND(DBMS_RANDOM.VALUE(0, 23) + DBMS_RANDOM.VALUE(0, 0.99), 2);
+        INSERT INTO construido (juguete, unidad, constructor, fecha, hora, niño) 
+        VALUES (v_unidad_juguete, v_unidad_numero, v_constructor_id, v_date, v_hora, v_bueno_pide);
+    END LOOP;
+    COMMIT;
+END;
+/
