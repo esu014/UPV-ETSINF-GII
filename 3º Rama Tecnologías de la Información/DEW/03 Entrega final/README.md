@@ -20,7 +20,7 @@ Como herramientas de trabajo, se ha dispuesto de distintas maquinas virtuales pr
 
 El proyecto consiste en generar una Aplicación Web, llamada NotasOnLine, en la que tanto alumnos como profesores, que previamente han sido registrados sus datos en la base de datos del sistema (CentroEducativo) son capaces de interactuar entre ellos para consultar y/o modificar las notas. Todo dependerá del rol que tengan (alumno o profesor). Para cada rol hay distintos casos de uso. Por ejemplo los alumnos no pueden modificar notas, solo pueden consultar sus notas y no las de ningún otro alumno. Y los profesores pueden calificar a los alumnos a los que imparte clases, es decir, están matriculados en la/s asignatura/s que imparte ese profesor.
 
-En el presente documento se expone detalladamente el proceso de resolución del escenario inicial planteado por el profesor en el marco de la asignatura Dessarrollo Web. La memoria se divide en dos grandes fases: la primera, que corresponde al [hito 1](#3-soluciones-del-hito-1), es la toma de contacto con la nueva tecnología que se está aprendiendo. Y la segunda, que corresponde más a los casos de uso de los distintos usuarios y lo que eso conlleva (analisis, desarrollo, comprobaciones...). O lo que es equivalente al [desarrollo entero de la aplicación web](). 
+En el presente documento se expone detalladamente el proceso de resolución del escenario inicial planteado por el profesor en el marco de la asignatura Dessarrollo Web. La memoria se divide en dos grandes fases: la primera, que corresponde al [hito 1](#3-soluciones-del-hito-1), es la toma de contacto con la nueva tecnología que se está aprendiendo. Y la segunda, que corresponde más a los casos de uso de los distintos usuarios y lo que eso conlleva (analisis, desarrollo, comprobaciones...). O lo que es equivalente al [desarrollo entero de la aplicación web](#4-desarrollo-de-la-aplicación-web-hitos-2-y-3). 
 
 A lo largo de esta memoria se describirán las etapas y metodologías empleadas para abordar y solucionar dicho problema. Cada sección de este informe proporcionará una visión comprensiva de los enfoques adoptados, las herramientas utilizadas y los resultados obtenidos. Esta estructura permitirá una comprensión clara y concisa de cómo se ha logrado transformar el escenario inicial en una solución efectiva y robusta. 
 
@@ -69,13 +69,13 @@ Para la resolución de estos hitos, el equipo escribió los siguientes archivos,
 En cuanto al código de los servlets, para poder interactuar con ellos, se ha realizado un HTML, en el cual, al hacer el evento "submit", se dirije la petición al servlet. 
 ```html
 <h1>log0</h1>
-  <form action = "log0" method = "GET">
- 	<p>Name: <input required = "required" type="text" name = "Name"><br>
- 	Email: <input required = "required" type="email" name = "Email"><br>
- 	Password: <input required = "required" type="password" name="Password"><br>
- 	<input type="submit" value = "login">
- 	</p>
- </form>
+<form action = "log0" method = "GET">
+    <p>Name: <input required = "required" type="text" name = "Name"><br>
+    Email: <input required = "required" type="email" name = "Email"><br>
+    Password: <input required = "required" type="password" name="Password"><br>
+    <input type="submit" value = "login">
+    </p>
+</form>
 ```
 Para que los próximos log1.java y log2.java funcionen, basta con cambiar en el atributo action del formulario, el nombre del servlet al que tiene que acudir cuando se ejecute el `<input type="submit">`.
 
