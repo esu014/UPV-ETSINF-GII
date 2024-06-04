@@ -30,8 +30,8 @@ Como se ha comentado anteriormente, el escenario a solucionar consistía en dise
 
 El escenario de la entrega se ha dividido en distintos hitos, 3 para ser exacto. En cada hito, el nivel de complejidad aumenta. 
 
-### 2.1 Hito 1
-El hito 1, consiste básicamente en una toma de contacto con los servelts, con la base de datos, localizada en la maquina host, en el puerto 9090; y con el formato `MD`, para realizar las actas, ya que es algo nuevo también para la mayoria de la clase. 
+### 2.1. Hito 1
+El hito 1, consiste básicamente en una toma de contacto con los servlets, con la base de datos, localizada en la maquina host, en el puerto 9090; y con el formato `MD`, para realizar las actas, ya que es algo nuevo también para la mayoria de la clase. 
 
 Como se observa, hay 3 subtareas:
 1. **Programar servlet**. Básicamente consiste en crear un primer servlet con la función de iniciar sesion con un usuario; y a partir de este servlet, añadirle características como que se escriba en un fichero los registros de inicio de sesion en el supuesto servidor (aqui todavía no hay nada implementado relacionado con el escenario). 
@@ -62,7 +62,7 @@ En cuanto a lo nuevo a desarrollar, los casos de uso del profesor; constan de la
 
 ## 3. Soluciones del hito 1
 
-### 3.1 Servlets LogX.java
+### 3.1. Servlets LogX.java
 
 Para la resolución de estos hitos, el equipo escribió los siguientes archivos, 3 servlets distintos (solucionando así el caso de los servlets), los cuales se han llamado `log0.java`, `log1.java` y `log2.java`; un script.sh (solucionando la tarea de hacer peticiones/modificaciones sobre la base de datos) y 2 actas en formato MD, una de ellas es el acta recogida el día de la presentación del equipo y la otra es la explicación detallada y al milimetro de como se llegó la solución de los problemas mencionados hasta ahora. 
 
@@ -95,7 +95,7 @@ Y el log2.java respecto a log1.java es que en vez de definir la variable que est
     <param-value>/home/user/Escritorio/NOLG2Access.log</param-value>
 </context-param>
 ```
-### 3.2 Script.sh 
+### 3.2. Script.sh 
 Para la solución relacionada con la interacción de la BD, el equipo ha realizado un script en el que se han realizado consultas y modificado el estado inicial, añadiendo una asignatura.
 
 Primero de todo, antes de hacer cualquiero consulta, se requiere una clave de acceso, la cual es la que autoriza al usuario a consultar y/o modificar la BD. Para ello, se ha consultado la API de Centro Educativo, para averiguar de que manera se hacen las peticiones/modificaciones, para observar que parámetros necesita, qué instrucción hay que hacer para obtener la consulta deseada y cómo es el tipo de respuesta. 
@@ -122,7 +122,11 @@ curl -s --data '{"apellidos": "Garcia Lopez", "dni": "33445566X", "nombre": "Jua
 -c cookies -b cookies
 ```
 
-### 3.3 Actas.md
+### 3.3. Actas.md
 En cuanto a esta tarea, no se ha considerado una tarea como tal, solo se ha invertido tiempo en aprender los comandos necesarios para poder hacer archivos estructurados y de mejor calidad. No lleva una solución como tal y no influyen en nada en cuanto al desarrollo del proyecto, como podía serlo las tareas previas (que preparan para el desarrollo en si de la aplicación web).
 
 ## 4. Desarrollo de la Aplicación Web (hitos 2 y 3)
+En esta sección de la memoria se va a explicar con detenimiento como ha sido el desarrollo del proyecto. Se parte de la base de que primero se ha desarrollado el inicio de sesión, posteriormente los casos de uso del alumno y finalmente los del profesor. Este orden ha llevado a que ha habido que rectificar y corregir/mejorar el código que se había escrito inicialmente, ya que nuevas funcionalidades pueden requerir de cambios en cosas que ya estaban asentadas.
+
+### 4.1. Estructura de ficheros del proyecto
+Primero de todo, se ha definido la estructura del proyecto, la manera en la que se van a organizar los archivos. Por suerte, esto no fue un "_quebradero de cabeza_" ya que, al utilzar una plantilla para poyectos web de ECLIPSE, este te hace la estructura inicial. Lo único que ha habido que decidir es donde colocar los archivos `HTML` y/o `.css`. El equipo decidió no crear archivos `.css` ya que se prefirió integrarlos en la propia página HTML. Las imagenes de los alumnos y profesores, se ha establecido mediante el web.xml en el directorio `home/user/Escritorio` de la maquina host
