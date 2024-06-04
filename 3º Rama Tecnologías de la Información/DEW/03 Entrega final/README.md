@@ -14,7 +14,13 @@
 4. [Desarrollo de la Aplicación Web (hitos 2 y 3)](#4-desarrollo-de-la-aplicación-web-hitos-2-y-3)
     1. [Estructura de ficheros del proyecto](#41-Estructura-de-ficheros-del-proyecto)
     2. [Estructura del proyecto](#42-estructura-del-proyecto)
-    3. 
+    3. [Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)
+        1. [Entrada](#431-entrada)
+        2. [Alumno](#432-alumno)
+        3. [Profesor](#433-profesor)
+    4. [Desarrollo del código](#44-desarrollo-del-código)
+        
+    
 
 ## 1. Introducción
 Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amoros ... (completar)
@@ -139,4 +145,36 @@ La estructura del proyecto en cuanto a funcionamiento es la siguiente:
 
 ![Estructura de las peticiones del proyecto](https://personales.alumno.upv.es/esopurb/dew/imgs/estructuraPry.png)
 
-Como se puede observar el proyecto tiene distintos servlets y cumple cada uno una funcion, la cual se desarrollará más adelante. Además, hay uno que no se puede reflejar y es el de seguridad, que impide el acceso a todos aquellas peticiones que no se han realizado con los parametros necesarios. Pero como se ha dicho antes, todo se explicará más asdelante
+Como se puede observar el proyecto tiene distintos servlets y cumple cada uno una funcion, la cual se desarrollará más adelante. Además, hay uno que no se puede reflejar y es el de seguridad, que impide el acceso a todos aquellas peticiones que no se han realizado con los parametros necesarios. Pero como se ha dicho antes, todo se explicará más adelante.
+
+### 4.3. Funcionamiento de la aplicación
+
+El funcionamiento de la aplicación se puede prever en la imagen anterior. 
+
+### 4.3.1. Entrada
+
+Consta de una página principal, en la cual tanto profesores como alumnos pueden iniciar sesión. 
+
+![Interfaz de Entrada](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/entrada.png)
+
+Una vez el usuario, sea alumno o profesor, clique en su correspondiente formulario de entrada, `Log3.java` pedirá las creedenciales para verificar si existe el usuario y si está accediendo por donde es debido. En caso de no ser así, redirigirá a la página de entrada otra vez.
+
+![Interfaz de Login](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/login.png)
+
+### 4.3.2. Alumno
+En el caso de que se haya iniciado sesión como alumno, `Log3.java` redigirá la petición al servlet `Alumno.java`, el cual se encarga de construir la página principal del alumno (`alumno.html`) en base a los datos del usuario. Para ello necesita hacer una petición HTTP a CentroEducativo para obtener las asignaturas y notas del alumno en cuestión. 
+
+![Interfaz de Alumno](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/alumno.png)
+
+Además esta página, hace una petición `AJAX` a un servlet llamado `GestionDinamica.java` para obtener la imagen del usuario registrado en formato `.pngb64`. Se hace de esta manera por motivos de seguridad, ya que si no fuera así, si el usuario fuera conocedor del dni de algún alumno o profesor, podría acceder a la foto del usuario al que corresponde dicho dni. 
+
+### 4.3.3. Profesor
+En cambio, cuando el usuario que se ha registrado es un profesor, `Log3.java` redigirá al usuario a `Profesor.java`. Este servlet hace lo mismo que `Alumno.java`, pero son diferentes ya que cada uno construye la página de una manera distinta, por lo que el diseño de la interfaz no es igual debido a que tienen funciones distintas (tienen un rol distinto). 
+
+Contruye `profesor.html` con los datos del profesor. También hace una petición HTTP para conseguir esta vez, las asignaturas que imparte, además de los datos necesarios para la personalización de la página (como sucede con alumno).
+
+![Interfaz de profesor](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/profesor.png)
+
+Además de la petición `AJAX` que se realiza al servlet `GestionDinamica.java` para obtener la imagen del usuario registrado, éste tambien esta programado de manera que segun el párametro que se pasa en la petición hará una cosa u otra. En el caso de alumno, solo devuelve una imagen (la del usuario registrado en ese caso) pero porque en la pagina `alumno.html` no se realiza ninguna petición más, no hace falta. En este caso no es así. En el código de `profesor.html` se vera como hay más de una petición `AJAX`, que se usan para obtener la información de los alumnos (peticion a `GestionDinamica.java`) y de esa manera poder calificarlos (peticion a un nuevo servlet llamado `PublicarNotas.java` que se encarga de enviar las nuevas notas a la base de datos para que actualice los valores mediante el método `PUT`).
+
+### 4.4. Desarrollo del código
