@@ -659,10 +659,7 @@ function avanzar()
         indice = -1
     }
     indice++
-    $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
-    $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
-    $('#calificacion').val('')
-    $.ajax({
+    .ajax({
         url: 'GestionDinamica',
         type: 'GET',
         datatype: 'json',
@@ -672,15 +669,16 @@ function avanzar()
         },
         success: function(data){
             $("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
-            $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
-            $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
-            $('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
         },
         error: function(jqXHR, textStatus, errorThrown) {
         // Manejar errores de la solicitud
             alert('Error:', textStatus, errorThrown);
         }
     })
+    $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+    $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+    $('#calificacion').val('')
+    $('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
 }
 ```
 
