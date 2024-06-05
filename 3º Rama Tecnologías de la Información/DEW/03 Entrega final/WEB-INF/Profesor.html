@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title>Asignaturas</title>
+	    <!-- Vinculación de Bootstrap CSS -->
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+		<script>
+			var datosCargadosEnTabla =false
+			var alum = [];
+			var asignatura;
+			var indice=0;
+			var nmedia = 0;
+			$(document).ready(function() {
+				//pedir imagen profesor
+				$.ajax({
+				    url: 'GestionDinamica',
+				    type: 'GET',
+				    datatype: 'json',
+				    data:'opt=imagen',
+				    headers: {
+                        'Authorization': 'true'
+                    },
+				    success: function(data){
+						$("#perfil").attr("src", "data:image/png;base64,"+data.img); 
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+			        // Manejar errores de la solicitud
+			        	alert('Error:', textStatus, errorThrown);
+			    	}
+		    	})
+			
+				//pedir asigantura y datos de los alumnos
+				$.ajax({
+				    url: 'GestionDinamica',
+				    type: 'GET',
+				    datatype: 'json',
+				    data:'opt=asignatura',
+				    headers: {
+                        'Authorization': 'true'
+                    },
+				    success: function(data){//esta el array de alumno y nota y luego tambien esta el del alumno con sus datos
+				    	let j = 0 //variable que mueve el subindice
+						let k = 0 //variable que recorre el segundo bucle
+						let h = 0 //variable que maneja el array de alumno
+						for(let i = 0; i<data.length; i=k)
+						{
+							if (!alum[h]) {
+						        alum[h] = [];
+						    }
+							
+							while(k < data.length && data[i].acronimo == data[k].acronimo)
+							{
+								if(!alum[h][j]) {
+							        alum[h][j] = []
+							    }
+								alum[h][j] = data[k]
+								j++
+								k++
+							}
+							j=0
+							h++
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+			        // Manejar errores de la solicitud
+			        	alert('Error:', textStatus, errorThrown);
+			    	}
+		    	})
+				//hacer enter y cambiar la nota
+				$('#calificacion').on('keydown', function(event) {
+	                if (event.key === 'Enter') {
+	                    // Simula un clic en un botón
+	                    nuevaNota($('#calificacion').val())
+	                }
+				})
+				
+				//deshabilitar botones
+				$('#calificacion, #prov, #btnMod ,#btnDrcha, #btnIzqda').prop('disabled', true);
+				//en caso de que vuelva a valer alumno...
+				$('#nombre').on('DOMSubtreeModified', function(){
+					var textoPred = $('#nombre').text();
+		            if (textoPred == 'Alumno') {
+		            	$("#imgAlu").attr("src", "https://cdn-icons-png.flaticon.com/512/3135/3135768.png"); 
+		            	$('#calificacion, #btnMod, #prov, #btnDrcha, #btnIzqda').prop('disabled', true); //deshabilita otra vez botones
+		            }
+				})
+			})
+			function tabla(datos)
+			{
+				const tbody = $('#miTabla tbody');
+                let fila = $('<tr class='+datos.acronimo+'></tr>');
+                let celdaNombre = $('<td></td>').append(document.createTextNode(datos.nombre +" "+datos.apellidos));
+                if(datos.nota ==""){datos.nota = "Sin Calificar"}
+                let celdaNota = $('<td class="celdaNota"></td>').append(document.createTextNode(datos.nota));
+                fila.append(celdaNombre);
+                fila.append(celdaNota);
+                tbody.append(fila);
+			}
+			function notamedia()
+			{
+				nmedia = 0;
+				for(let i = 0;alum[asignatura].length > i;i++){
+					nmedia += parseFloat(alum[asignatura][i].nota)
+				}
+				nmedia = (nmedia/alum[asignatura].length).toFixed(2);
+				if(isNaN(nmedia))
+				{
+					return "Nota media aún no disponible"
+				}
+				else
+				{
+					return nmedia;
+				}
+			}
+		 	function agregarFila(acronimo, num) {
+		 		var kumala = $('#miTabla tbody');
+		 		var tab = document.getElementById('miTabla');
+				var filas = tab.rows
+		 		if(!datosCargadosEnTabla)//revisar estoy por un .hide más que crear la tabla y descrearla (más optimo el hide)
+                {
+		 			asignatura = num
+                	alum[asignatura].forEach(datos => {
+                		if(datos.acronimo==acronimo){
+                        	tabla(datos);
+                		}
+                    });
+                	datosCargadosEnTabla = true
+                	let fila = $('<tr></tr>');
+                	let celdaNombre = $('<td class=notaMed></td>').append(document.createTextNode("Nota Media de los Alumnos"));
+                    let celdaNota = $('<td class=notaMed></td>').append(document.createTextNode(notamedia() + ""));
+                    fila.append(celdaNombre);
+                	fila.append(celdaNota);
+                	kumala.append(fila);
+                	$('#btnMod').prop('disabled', false);
+               	}
+		 		else if(datosCargadosEnTabla && num !=asignatura)
+               	{
+		 			for(let i = filas.length-1; i > 0;i--){
+                		tab.deleteRow(i)
+                    }
+                	$('#nombre').text("Alumno") //obtiene el texto del p id nombre
+    		 		$('#nota').text("Nota") //obtiene el texto de p id nota
+    		 		asignatura = num
+                	alum[asignatura].forEach(datos => {
+                		if(datos.acronimo==acronimo){
+                        	tabla(datos);
+                		}
+                    });
+                	let fila = $('<tr></tr>');
+                	let celdaNombre = $('<td class=notaMed></td>').append(document.createTextNode("Nota Media de los Alumnos"));
+                    let celdaNota = $('<td class=notaMed></td>').append(document.createTextNode(notamedia()));
+                    fila.append(celdaNombre);
+                	fila.append(celdaNota);
+                	kumala.append(fila);
+                	$('#btnMod').prop('disabled', false);
+               	}
+		 		else
+	 			{
+		 			for(let i = filas.length-1; i > 0;i--){
+                		tab.deleteRow(i)
+                    }	
+                	datosCargadosEnTabla = false
+                	$('#nombre').text("Alumno") //obtiene el texto del p id nombre
+    		 		$('#nota').text("Nota") //obtiene el texto de p id nota
+    		 		$('#btnMod').prop('disabled', true);
+	 			}
+		 		
+		 	}
+		 	//habilitar el modificar las notas (boton de modificar)
+		 	function modificarNotas()
+		 	{
+		 		indice=0
+		 		$.ajax({
+				    url: 'GestionDinamica',
+				    type: 'GET',
+				    datatype: 'json',
+				    data:'imagen='+alum[asignatura][indice].dni,
+				    headers: {
+                        'Authorization': 'true'
+                    },
+				    success: function(data){
+				    	$("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+			        // Manejar errores de la solicitud
+			        	alert('Error:', textStatus, errorThrown);
+			    	}
+		    	})
+		    	$('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+		 		$('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+		 		$('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
+		 	}
+		 	function avanzar()
+		 	{
+		 		if(indice == alum[asignatura].length-1)
+		 		{
+		 			indice = -1
+		 		}
+		 		indice++
+		 		$.ajax({
+				    url: 'GestionDinamica',
+				    type: 'GET',
+				    datatype: 'json',
+				    data:'imagen='+alum[asignatura][indice].dni,
+				    headers: {
+                        'Authorization': 'true'
+                    },
+				    success: function(data){
+				    	$("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+			        // Manejar errores de la solicitud
+			        	alert('Error:', textStatus, errorThrown);
+			    	}
+		    	})
+		    	$('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+		 		$('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+		 		$('#calificacion').val('')
+		 		$('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
+		 	}
+		 	function retroceder()
+		 	{
+		 		
+		 		if(indice == 0)
+		 		{
+		 			indice = alum[asignatura].length
+		 		}
+		 		indice--
+		 		$.ajax({
+				    url: 'GestionDinamica',
+				    type: 'GET',
+				    datatype: 'json',
+				    data:'imagen='+alum[asignatura][indice].dni,
+				    headers: {
+                        'Authorization': 'true'
+                    },
+				    success: function(data){
+				    	$("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+			        // Manejar errores de la solicitud
+			        	alert('Error:', textStatus, errorThrown);
+			    	}
+		    	})
+		    	$('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+		 		$('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+		 		$('#calificacion').val('')
+		 		$('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
+		 	}
+		 	//notas introducidas en el input type
+		 	function nuevaNota(nota)
+		 	{
+		 		nota = parseFloat(nota).toFixed(2)
+		 		//aqui va la petición ajax
+		 		if(nota>=0 && nota<=10 && nota!="")
+		 		{
+		 			$.ajax({
+		            	url: './PublicarNotas', 
+		            	type: 'POST',
+		            	datatype: 'json', 
+		            	async:true,
+		            	headers: {
+	                        'Authorization': 'true'
+	                    },
+		            	data: 'acronimo='+alum[asignatura][indice].acronimo+'&nota='+nota+'&dni='+alum[asignatura][indice].dni,
+		            	success: function(data){
+		            		alert("Nota de "+ alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos+ " publicada con éxito.")
+		            		
+					 		$('#nota').text(nota)
+					 		alum[asignatura][indice].nota = nota
+					 		// Selecciona la celda específica y modifica su contenido
+				            $('#miTabla tr').eq(indice+1).find('td').eq(1/*columna de notas, es fija*/).html(nota)
+				            var tab = document.getElementById('miTabla');
+            				var fila = tab.rows
+            				var prueba = notamedia()
+				            $('#miTabla tr').eq(fila.length-1).find('td').eq(1/*columna de notas, es fija*/).html(prueba)
+				            avanzar()
+		            	},
+		            	error: function(err){
+		            		alert("Error: "+err.responseText)
+		            	}
+		            })
+		 		}	
+		 		else
+	 			{
+	 				alert("Por favor, introduzca una nota válida")
+	 			}
+		 	}
+		</script>
+	    <style>
+		    
+		    body{
+				transform: translateX(-50%);	
+				transform: translateY(15%);		    	
+				display: flex;
+                background-color: #F0E68C; /* Color de fondo amigable */
+                align-items:center;
+                justify-content: center;
+ 
+		    }
+		    input[type=number]::-webkit-inner-spin-button, 
+			input[type=number]::-webkit-outer-spin-button { 
+	  			-webkit-appearance: none; 
+	 			margin: 0; 
+			}
+	
+			input[type=number] { -moz-appearance:textfield; }
+	       .Boton:hover {
+	            background-color: #0056b3;
+	            transform: scale(1.05); /* Aumentar el tamaño al pasar el cursor */
+	        }
+	        
+	       .center-button button {
+	            margin-top: 40px; /* Agregar margen superior al botón */
+	            width: 20%;
+	            padding: 10px;
+	            border: none;
+	            border-radius: 10px;
+	            background-color: #007BFF;
+	            color: white;
+	            cursor: pointer;
+	            transition: transform 0.3s ease; /* Transición suave para el cambio de tamaño */
+	        }
+	        .divs {
+	        	display:flex;  
+	        	justify-content: space-between;
+	        	gap: 3%
+	        }
+	        .titulo
+	        {
+	        	display: flex;
+	            flex-direction: column; /* Apila los elementos verticalmente */
+	            justify-content: center; /* Centra verticalmente el contenido */
+	            width: 100%
+	            
+	        }
+	        table {
+	            width: 100%;
+	            border-collapse: collapse;
+	        }
+	        table, th, td {
+	            border: 1px solid black;
+	        }
+	        th, td {
+	            padding: 10px;
+	            text-align: left;
+	        }
+	        th {
+	            background-color: #f2f2f2;
+	        }
+	        .notaMed
+	        {
+	        	font-weight: bold;
+    			text-decoration: underline;
+	        }
+            .borde
+            {
+            	margin-top: 50px;
+                display:grid;
+                grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+                gap: 10px; /* Espacio entre las columnas */
+            }
+            .conte
+            {	
+                display: grid;
+                grid-template-columns: 1fr;
+                border: 2px solid grey;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                padding: 10px;
+                background-color: white; /* Color de fondo amigable */
+                border-radius:10px;
+            }
+            .imgt, .nota, .nombre, .calif, .buttons-input{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .buttons-input{
+            	gap: 2%
+            }
+            .finals{
+            	align-items: right;
+            }
+            .finals button {
+	            width: 175px;
+	            padding: 10px;
+	            border: none;
+	            border-radius: 5px;
+	            background-color: red;
+	            color: white;
+	            cursor: pointer;
+	            transition: transform 0.3s ease; /* Transición suave para el cambio de tamaño */
+        	}
+	        .finals button:hover {
+	            background-color: darkred;
+	            transform: scale(1.05); /* Aumentar el tamaño al pasar el cursor */
+	        }
+	        
+		    #btnIzqda, #btnDrcha  {
+                border: none;
+                background-color: white;
+                color: #007BFF;
+                font-size: 35px;
+                transition: transform 0.3s ease;
+            } 
+            #prov, #btnMod{
+	            padding: 10px;
+	            border: none;
+	            border-radius: 5px;
+	            background-color: #007BFF;
+	            color: white;
+	            cursor: pointer;
+	            transition: transform 0.3s ease;
+            }
+            #prov:hover, #btnMod:hover{
+	            background-color: #0056b3;
+	            transform: scale(1.05); /* Aumentar el tamaño al pasar el cursor */
+	        }
+	        #btnIzqda:hover, #btnDrcha:hover {
+	        	transform: scale(1.05);
+	        }
+	        #prov:disabled, #btnMod:disabled{
+	            background-color: #5AA8FE;
+	            transform: scale(1);
+	            cursor: default;
+	        }     
+			#btnIzqda:disabled, #btnDrcha:disabled {
+				background-color: white;
+	        	transform: scale(1);
+	        } 
+	        #contenedorPrin
+	        {	
+	        	background-color: white;
+	        	border-radius: 10px;
+            	box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            	padding:20px;
+            	/*padding-bottom: 40px;*/
+            	height:70%;
+            	width: 70%;
+	        } 
+		        
+	    </style>
+	</head>
+	<body>
+		<div id="contenedorPrin" class="container mt-5">
+			<div class="divs">
+                <div class="divimg">
+					<img id="perfil" style="border-radius:50%">
+				</div>
+				<div class="titulo">
+				    <h1>Bienvenido, <br>{{nomalu}}</h1>
+				</div>
+				<div class="finals">
+			    	<form action="FinalizarSesion" method="get">
+				    	<button type="submit" onclick="">Finalizar Sesión</button>
+			    	</form>
+		    	</div>
+			</div>
+			<div class="borde">
+				<div class = "contenedor">
+				<h2>Asignaturas</h2>
+					<div class="innerContenedor">
+						<!-- Accordion de Asignaturas -->
+					    <div class="accordion" id="accordionExample">
+					        {{asg}}
+					    </div>
+					</div>
+					<div style="margin-top: 10px">
+						<table id='miTabla'>
+					    	<thead>
+					    		<tr>
+						    		<th>Nombre</th>
+						    		<th>Calificación</th>
+						    	</tr>
+					    	</thead>
+						    <tbody>
+						    	<!-- aqui van las filas de la tabla -->
+						    </tbody>
+				    	</table>
+					</div>
+			    	<div style="margin-top: 10px">
+				    	<button id="btnMod" onclick="return modificarNotas()">Calificar Alumnos</button>
+				    </div>
+				</div>
+				<div class="conte">
+	                <div class="imgt">
+	                    <img id="imgAlu" class="top-image" src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" width="185" style="border-radius:50%">
+                    </div>
+                    <div class="nombre" style="margin-top:10px">
+                        <p id="nombre">Alumno</p>
+                    </div>
+                    <div class="calif">
+                        <p id="nota">Sin calificar.</p>
+                    </div>
+                    <div class="buttons-input">
+                        <button type="button" onclick = "return retroceder()" class="btn btn-primary" id="btnIzqda">
+                        	 <i class="bi bi-arrow-left-circle-fill"></i>
+                        </button>
+                        <input type="number" id="calificacion" placeholder="Agregar nueva nota">
+                        <button type="button" onclick="return avanzar()" class="btn btn-primary" id="btnDrcha">
+                        	<i class="bi bi-arrow-right-circle-fill"></i>
+                        </button>
+                    </div>   
+                    <div class="buttons-input">
+                    	<button onclick="return nuevaNota($('#calificacion').val())" id="prov" class="prov">Modificar nota</button>
+                    </div>
+            	</div>
+		    </div>
+		</div>
+	
+
+
+		<!-- Vinculación de Bootstrap JavaScript -->
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+	</body>
+</html>
