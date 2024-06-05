@@ -144,7 +144,7 @@ Primero de todo, se ha definido la estructura del proyecto, la manera en la que 
 ### 4.2. Estructura del proyecto
 La estructura del proyecto en cuanto a funcionamiento es la siguiente:
 
-![Estructura de las peticiones del proyecto](https://personales.alumno.upv.es/esopurb/dew/imgs/estructuraPry.png)
+![Estructura de las peticiones del proyecto](https://personales.alumno.upv.es/esopurb/dew/imgs/estructuraProyecto.png)
 
 Como se puede observar el proyecto tiene distintos servlets y cumple cada uno una funcion, la cual se desarrollará más adelante. Además, hay uno que no se puede reflejar y es el de seguridad, que impide el acceso a todos aquellas peticiones que no se han realizado con los parametros necesarios. Pero como se ha dicho antes, todo se explicará más adelante.
 
