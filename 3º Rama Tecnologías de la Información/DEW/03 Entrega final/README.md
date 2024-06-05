@@ -219,7 +219,7 @@ Una vez mencionadas las bibliotecas relacionadas con los archivos HTML (`Bootstr
 ### 4.4.2.1. Index.html
 Index.html es la interfaz que aparece cuando en el navegador se introduce la url `http://dew-tulogin-2324.dsicv.upv.es:8080/Nombre_del_proyecto`. En este caso, es la interfaz mostrada en el apartadado [4.3.1 Entrada](#431-entrada). 
 
-En cuanto a código, como se puede intuir al ver la imagen de la interfaz, dispone de 2 formularios, uno dirigido a profesores y otro para alumnos. Cada formulario está dirigido mediante `action` y una petición de tipo `GET`, al servlet correspondiente (ya sea Alumno.java o Profesor.java) //poner indicees.
+En cuanto a código, como se puede intuir al ver la imagen de la interfaz, dispone de 2 formularios, uno dirigido a profesores y otro para alumnos. Cada formulario está dirigido mediante `action` y una petición de tipo `GET`, al servlet correspondiente (ya sea Alumno.java o Profesor.java) //poner indicees de los servlet
 ```html
 <div class="login-container">
     <h2>Alumnos</h2>
@@ -261,9 +261,9 @@ En cuanto a la página de login.html, esta es aun más sencilla, ya que cuenta c
 En cuanto a estilo, no se refleja ningún cambio respecto a la página mencionada anteriormente. Esta, como se ha mencionado anteriormente (Véase punto), consta del mismo código JavaScript, ya que según en que navegador, en caso de navegar para atrás, hay veces que en vez de redirigir directamente a la pagina principal, pasa otra vez por el login.html. De esta manera, desaparece la posibilidad de que aparezca el error 408. 
 
 ### 4.4.2.3. Error.html y error2.html
-Para el tratamiento de errores, se han diseñado dos páginas, las cuales varían muy poco la una de la otra. Estás enmáscaran dós tipos de errores: el usuario no esta registrado (las credenciales introducidas no están en el fichero `tomcat-users.xml`) y el caso en que el usuario tenga intención de investigar y probar que pasa si introduce según que URL en el navegador para intentar acceder a un recurso al cual no puede acceso. Este caso tambien se aplica a usuarios no registrados.
+Para el tratamiento de errores, se han diseñado dos páginas, las cuales varían muy poco la una de la otra. Estás enmascaran dos tipos de errores: el usuario no esta registrado (las credenciales introducidas no están en el fichero `tomcat-users.xml`) y el caso en que el usuario tenga intención de investigar y probar que pasa si introduce según que URL en el navegador, para intentar acceder a un recurso al cual no puede acceso. Este caso tambien se aplica a usuarios no registrados.
 
-El estilo de las páginas de error, se ha querido diseñar de una manera divertida, basandose en "_Memes_" o frases que pueden causar alguna sonrisa en el usuario que intenta acceder a recursos a los cuales no está autorizado. A continuación se muestra el código básico de la página `error.html`, la cual aparece cuando el usuario no esta registrado en el archivo del servidor `tomcat-users.xml.
+El estilo de las páginas de error, se ha querido diseñar de una manera divertida, basandose en "_Memes_" o frases que pueden causar alguna sonrisa en el usuario que intenta acceder a recursos a los cuales no está autorizado. A continuación se muestra el código básico de la página `error.html`, la cual aparece cuando el usuario no esta registrado en el archivo del servidor `tomcat-users.xml`.
 ```html
 <div class="error-message" style="margin-left: 0px; top:20%">
         Venga hombre no me jodas 
@@ -275,13 +275,196 @@ El estilo de las páginas de error, se ha querido diseñar de una manera diverti
 Además esta cuenta tambien con un breve script de JavaScript para redirigir al usuario a la página en la que estaba anteriormente al cabo de 4 segundos. En este caso, no es necesario el uso de la biblioteca `JQuery`.
 ```html
 <script>
-	    setTimeout(()=>{
-	    	window.history.back()
-	    }, 4000)
+    setTimeout(()=>{
+        window.history.back()
+    }, 4000)
 </script>
 ``` 
-En cuanto a la página de `error2.html`, lo único que varía es la frase escrita en `<div class="error-message" style="margin-left: 0px; top:20%">`, la cual es: "_¿Qué buscas cotilla?_".
+En cuanto a la página de `error2.html`, lo único que varía es la frase escrita en `<div class="error-message" style="margin-left: 0px; top:20%">`, la cual es: "_¿Qué buscas cotilla?_". Esta, también cuenta con el código JavaScript mostrado anteriormente encargado de redirigir al usuario a la página que estaba anteriormente.
 
 ### 4.4.2.4. Profesor.html
+Tanto profesor como las dos próximas páginas HTML, no están en el mismo directorio que las anteriores mencionadas. Éstas se esconden en la carpeta WEB-INF. De esta manera, se protege los recursos para que no puedan ser accedidos mediante la propia URL del archivo (haciendo imposible su acceso por cualquier usuario). Esto no supone un problema para la aplicación, ya que lo que se encarga de mostrar la página en la aplicación es el servlet que está asociado a cada HTML, en este caso Profesor.java (Véase [poner punto]()). Es decir, el resto de páginas que se van a describir, tienen función de plantilla, más que de interacción como tal. 
+
+Los profesores tienen unos casos de uso específicos (Véase apartado [2.3. Hito 3](#23-hito-3)) y por tanto una plantilla específica. En este archivo, se encuentran distintos marcadores que posteriormente serán reescritos por el servlet. Estos se identifican de la siguiente manera: `{{marcador}}`. 
+
+La página se puede dividir en distintos `<div></div>`, que contendran dentro distintos elementos y marcadores. Inicialmente, dentro de la etiqueta `<body></body>`, se encuentra `<div id="contenedorPrin" class="container mt-5">`, que como se puede intuir, es el contenedor donde dentro van a estar los distintos subcontenedores con sus respectivos subcontenedores y/u objetos. 
+
+Como primer contenedor que está detro del contenedor principal, se encuentra el `<div class="divs">`, cuya funcion es estructurar un saludo hacia el/la profesor/a que acaba de iniciar sesión y el botón que posibilita terminar la sesión. En este código tambien se encuentra el primero de los marcadores, `{{nomalu}}`. Éste se reescribirá posteriormente por el nombre y apellidos del/a profesor/a.
+```html
+<div id="contenedorPrin" class="container mt-5">
+    <div class="divs">
+        <div class="divimg">
+            <img id="perfil" style="border-radius:50%">
+        </div>
+        <div class="titulo">
+            <h1>Bienvenido, <br>{{nomalu}}</h1>
+        </div>
+        <div class="finals">
+            <form action="FinalizarSesion" method="get">
+                <button type="submit" onclick="">Finalizar Sesión</button>
+            </form>
+        </div>
+    </div>
+    <!-- Resto de la página, todo lo comentado a continuación está ubicado aqui -->
+</div>
+```
+
+Siguiendo la estructura de la página, se encuentra el siguiente gran contenedor dentro del contenedor principal, `<div class="borde"></div>`. Contiene dos grandes subcontenedores para estructurar la interfaz: `<div class = "contenedor"></div>` y `<div class="conte"></div>`. Ambos tienen características bastane concretas que merecen ser comentadas. 
+```html
+    <!-- Segundo gran conteneder -->
+    <div class="borde">
+        <div class = "contenedor">
+            <!-- Código del div -->
+        </div>
+        <div class="conte">
+            <!-- Código del div -->
+        </div>
+    </div>
+```
+
+El div `<div class = "contenedor"></div>` es la zona de la interfaz general, donde el profesor visualiza las asignaturas y sus respectivos alumnos de las mismas. Además tiene el bóton que posibilita la modificación de las notas de los alumnos, según la asignatura seleccionada. Como se puede observar en la sección de código hay otro marcador, en este caso `{{asg}}`. El servlet Profesor.java (Véase [poner punto]()) reescribirá en este punto de la página, un acordeón de asignaturas que tendra tantas filas como asignaturas que imparte. También se puede apreciar lo que es el comienzo de una tabla, con su etiqueta `<thead></thead>` y su respectivas filas y celdas, y el comienzo de un `<tbody></tbody>`, que en la plantilla está vacío. Esto se debe a que esta tabla se va actualizando dinámicamente mediante JavaScript, según se haya seleccionado una asignatura u otra para corregir, o en caso de que se haya deseleccionado, desaparece. Finalmente, se aprecia también el botón mencionado anteriormente que al ser clicado, acciona el método que habilita la posibilidad de modificar las notas de los alumnos de la asignatura seleccionada.
+```html
+    <div class = "contenedor">
+        <h2>Asignaturas</h2>
+        <div class="innerContenedor">
+            <!-- Accordion de Asignaturas -->
+            <div class="accordion" id="accordionExample">
+                {{asg}}
+            </div>
+        </div>
+        <div style="margin-top: 10px">
+            <table id='miTabla'>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Calificación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- aqui van las filas de la tabla -->
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 10px">
+            <button id="btnMod" onclick="return modificarNotas()">Calificar Alumnos</button>
+        </div>
+    </div>
+```
+El otro subcontenedor principal, `<div class="conte"></div>`, contiene la interfaz para la modificación de las notas de los alumnos. Se ha decidido que todo este en la misma página HTML para hacer la interacción del usuario más dinámica y sin redirecciones. Este contenedor cuenta con la siguiente estructura:
+```html
+    <div class="conte">
+        <div class="imgt">
+            <img id="imgAlu" class="top-image" src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" width="185" style="border-radius:50%">
+        </div>
+        <div class="nombre" style="margin-top:10px">
+            <p id="nombre">Alumno</p>
+        </div>
+        <div class="calif">
+            <p id="nota">Sin calificar.</p>
+        </div>
+        <div class="buttons-input">
+            <button type="button" onclick = "return retroceder()" class="btn btn-primary" id="btnIzqda">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+            </button>
+            <input type="number" id="calificacion" placeholder="Agregar nueva nota">
+            <button type="button" onclick="return avanzar()" class="btn btn-primary" id="btnDrcha">
+                <i class="bi bi-arrow-right-circle-fill"></i>
+            </button>
+        </div>   
+        <div class="buttons-input">
+            <button onclick="return nuevaNota($('#calificacion').val())" id="prov" class="prov">Modificar nota</button>
+        </div>
+    </div>
+```
+Como se puede observar, en esta zona de código se le da funcionalidad a la interfaz de modificación de las notas de los alumnos de la asignatura correspondiente con distintos métodos JavaScript.
+
+La página, como se ha ido viendo anteriormente, contiene 4 etiquetas `<script></script>`, 3 de ellas para la importación de bibliotecas:
+```html
+<!-- Vinculación de Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+<!-- Importar biblioteca JQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+```
+Y una para el desarrollo de las distintas funciones y eventos que tiene el archivo en cuestión. Esta etiqueta es bastante extensa, por lo que se va a dividir en secciones para analizar y explicar el código de manera precisa.
+
+Para empezar, en la etiqueta se han declarado una serie de variables para que sean globales. Se ha realizado de esta manera para seguir asi la estructura de un código Java, aunque es sabido que si se declara sin etiqueta la varible, se crea de ámbito global. La página tiene una serie de métodos que se ejecutan cuando se está cargando la página en el navegador. 
+```javascript
+var datosCargadosEnTabla =false
+var alum = [];
+var asignatura;
+var indice=0;
+var nmedia = 0;
+$(document).ready(function() {
+    //distintos eventos y peticiones AJAX
+})
+```
+Para no saturar la lectura de código, se van a explicar a continuación fragmeto a fragmento con su debida explicación. Todos estos eventos y peticiones se encuentran dentro evento `$(document).ready(function (){...})`.
+
+El primer fragmento de código es una petición AJAX en la que se solicita a un servlet llamado `GestionDinamica.java` (Véase [poner punto]()), el cuál ha sido programado para recibir peticiones relacionadas con la gestión dinámicas de las páginas, tanto profesor.html como en la de alumno e imprimir, que se verá posteriormente (Véase puntos [4.4.2.5. Alumno.html](#4425-alumnohtml) y [PlantillaPeticion.html](#4426-plantillapeticionhtml)). En este caso se realiza una peticion con los parámetros definidos en `data`. Esto es así porque el servlet ha sido programado para que cuando reciba estos parámetros, devuelva la imagen del usuario activo. Además se añade el atributo `headers`, que tiene la función de proteger las peticiones en caso de que se introduzcan desde la URL del navegador, en vez de como es debido. Para proteger este caso, se ha desarrollado un nuevo filtro (además del ya existente), llamado `Authorized.java` (Véase [poner punto]()), que verifica si contiene el atributo header en la petición, y en caso de tenerlo, que coincida con el valor asignado `true`. En cualquier otro caso, no permite el acceso y devuelve _`SC_FORBIDDEN`_, haciendo así que aparezca la página de error2.html ya mencionada anteriormente (Véase [4.4.2.3. Error.html y error2.html](#4423-errorhtml-y-error2html))
+```js
+    //pedir imagen profesor
+    $.ajax({
+        url: 'GestionDinamica',
+        type: 'GET',
+        datatype: 'json',
+        data:'opt=imagen',
+        headers: {
+            'Authorization': 'true'
+        },
+        success: function(data){
+            $("#perfil").attr("src", "data:image/png;base64,"+data.img); 
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+        // Manejar errores de la solicitud
+            alert('Error:', textStatus, errorThrown);
+        }
+    })
+```
+En caso de que todo haya ido bien, el servlet responderá con un objeto `JSON` a la petición, que contendrá el atributo imagen con su debida infomación en formato `.pngb64`. Una vez recibida, se asigna el valor contenido en el atributo img de la resuesta a la foto con id="perfil". En caso de error, notifica al usuario mediante una alerta de lo que ha sucedido. 
+
+El siguiente fragmento de código está relacionado con la obtención de los alumnos matriculados en la/s distinta/s asignatura/s que imparte el profesor. Como se puede observar, se sigue el mismo procedimiento: se introducen los valores necesarios para realizar la petición: se configura la url, el tipo de petición, el tipo de objeto a recibir, el header y los parámetros, que en este caso es `opt=asignatura`. Con estos parámetros el servlet mencionado anteriormente, devuelve un array de objectos `JSON` en los que están todos los alumnos de todas las asignaturas en las que imparte el profesor. Estos objetos, contienen el dni, la nota, los apellidos, el acrónimo de la asignatura entre otros. Según la respuesta se realiza una cosa u otra.
+```js
+    //pedir asigantura y datos de los alumnos
+    $.ajax({
+        url: 'GestionDinamica',
+        type: 'GET',
+        datatype: 'json',
+        data:'opt=asignatura',
+        headers: {
+            'Authorization': 'true'
+        },
+        success: function(data){//esta el array de alumno y nota y luego tambien esta el del alumno con sus datos
+            let j = 0 //variable que mueve el subindice que insertara los alumnos
+            let k = 0 //variable que recorre el bucle para ver todos los alumnos
+            let h = 0 //variable que maneja el array que diferenciara las asignaturas
+            for(let i = 0; i<data.length; i=k)
+            {
+                if (!alum[h]) {
+                    alum[h] = [];
+                }
+                
+                while(k < data.length && data[i].acronimo == data[k].acronimo)
+                {
+                    if(!alum[h][j]) {
+                        alum[h][j] = []
+                    }
+                    alum[h][j] = data[k]
+                    j++ 
+                    k++
+                }
+                j=0
+                h++
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+        // Manejar errores de la solicitud
+            alert('Error:', textStatus, errorThrown);
+        }
+    })
+```
+En caso de que la petición ha sido correcta, se realiza un recorrido del array tantas veces como asignaturas distintas haya (variable i). Se comprueba que el array este incializado y de no ser asi se inicializa. Una vez esta todo en la situación ideal, se realiza un segundo bucle en el que se va a dividir estos alumnos en asignaturas, identificandolos por el acrónimo. El valor `data[i].acronimo` fija el valor del acrónimo de la asignatura que se estan guardando en el indice h. Con el valor de `data[k].acronimo` se recorre el array entero (k++). Mientras ambos valores sean iguales, significa que los alumnos son de la misma asignatura. En el momento en el que esto no sea así, se incrementa el valor de h en uno para mover el índice de la asignatura, se posiciona a 0 el valor de j, para empezar en la posicion 0 del subindice e introducir alumnos desde ahi y se iguala i a k. De esta manera, se salta todas las comprobaciones repetidas. Es decir, si se han metido 3 alumnos, no tiene sentido hacer i++, porque si empieza en 0, y hemos dicho que se han metido 3 alumnos, el alumno en la posicion 1, corresponde a la misma asignatura. De esta manera (i=k) salta directamente al nuevo alumno con una asignatura distinta.
+
 ### 4.4.2.5. Alumno.html
 ### 4.4.2.6. PlantillaPeticion.html
