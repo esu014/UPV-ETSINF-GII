@@ -32,6 +32,7 @@
                 4. [Profesor.html](#4424-profesorhtml)
                 5. [Alumno.html](#4425-alumnohtml)
                 6. [PlantillaPeticion.html](#4426-plantillapeticionhtml)
+            3. [Archivos Java: servlets y Filters](#443-archivos-java-servlet-y-filters)
         
 # 1. Introducción
 Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amoros ... (completar)
@@ -118,7 +119,7 @@ Y el log2.java respecto a log1.java es que en vez de definir la variable que est
 ## 3.2. Script.sh 
 Para la solución relacionada con la interacción de la BD, el equipo ha realizado un script en el que se han realizado consultas y modificado el estado inicial, añadiendo una asignatura.
 
-Primero de todo, antes de hacer cualquiero consulta, se requiere una clave de acceso, la cual es la que autoriza al usuario a consultar y/o modificar la BD. Para ello, se ha consultado la API de Centro Educativo, para averiguar de que manera se hacen las peticiones/modificaciones, para observar que parámetros necesita, qué instrucción hay que hacer para obtener la consulta deseada y cómo es el tipo de respuesta. 
+En primera instancia, antes de hacer cualquiero consulta, se requiere una clave de acceso, la cual es la que autoriza al usuario a consultar y/o modificar la BD. Para ello, se ha consultado la API de Centro Educativo, para averiguar de que manera se hacen las peticiones/modificaciones, para observar que parámetros necesita, qué instrucción hay que hacer para obtener la consulta deseada y cómo es el tipo de respuesta. 
 ```sh
 KEY=$(curl -s --data '{"dni":"111111111","password":"654321"}' \
 -X POST -H "content-type: application/json" http://dew-esopurb-2324.dsicv.upv.es:9090/CentroEducativo/login \
@@ -202,7 +203,7 @@ En el apartado anterior ([4.3 Funcionamiento de la aplicación](#43-funcionamien
 En este apartado se va a hablar de como se ha implementado la lógica de funcionamiento explicada anteriormente. Se ha dividido en los siguientes subapartados:
 1. [Bibliotecas](#441-bibliotecas)
 2. [Páginas HTML](#442-páginas-html)
-3. [Clases Java]()
+3. [Clases Java](#443-archivos-java-servlet-y-filters)
 4. [Archivo web.xml]()
 
 ### 4.4.1. Bibliotecas
@@ -743,5 +744,126 @@ function nuevaNota(nota)
 
 ### 4.4.2.5. Alumno.html
 
+`Alumno.html`, es una versión más simple de `profesor.html` ya que al haberse realizado antes (puesto que era para el hito 2 (Véase apartado [2.2. Hito 2](#22-hito-2)) y profesor para el hito 3), no tiene tanta complejidad. Consta de distintos marcadores, al igual que `profesor.html`, para que el servlet `Alumno.java` pueda reescribir la página con los datos personalizados del/a alumno/a que ha iniciado sesión. Además de esto, se ha incluido la opción de pedir las imágenes de manera dinamica mediante una petición AJAX, con sus debidos parámetros y cabeceras. Esto en un inicio no estaba asi, pero por motivos de seguridad, se ha elegido esta opción. Si se hubiera mantenido la idea original de insertar archivos `.png`, con saber el dni de un usuario, se podría acceder a la foto de éste. Además, a este protocolo de seguridad, se le une el filter ya mencionado anteriormente, `Authorized.java`. 
+
+En cuanto al estilo `CSS`, sigue la misma política que se ha ido continuando durante todo el proyecto, los mismos colores y manteniendo el diseño de la página. Todo con el código `css` integrado en el mismo HTML.
+
+En el código se encuentran los marcadores, que como se ha explicado antes, sirven para reemplazarlos por código HTML generado por el servlet. En el caso del marcador `{{asg}}`, se reemplazará por un acordeón de asignaturas (las asignaturas en el que el/la alumno/a está matriculado/a) y `{{nomalu}}` será reemplazado por el nombre y los apellidos del alumno/a que ha inciado sesión. Como diseño del código tenemos la siguiente estructura: 
+
+```html
+<div id="contenedorPrin" class="container mt-5">
+    <div class="divs">
+        <div class="divimg">
+            <img id="perfil" style="border-radius:50%">
+        </div>
+        <div class="titulo">
+            <h1>Bienvenido, <br>{{nomalu}}</h1>
+        </div>
+        <div class="finals">
+            <form action="FinalizarSesion" method="get">
+                <button type="submit" onclick="">Finalizar Sesión</button>
+            </form>
+        </div>
+    </div>
+    <div class="cajon">
+        <h2>Asignaturas</h2>
+        <!-- Accordion de Asignaturas -->
+        <div class="accordion" id="accordionExample">
+            {{asg}}
+        </div>
+        <form action="Imprimir">
+            <div class="center-button">
+                <button class="Boton" type="submit" >Imprimir Certificado Alumno</button>
+            </div>
+        </form>
+    </div>
+</div>
+```
+
 
 ### 4.4.2.6. PlantillaPeticion.html
+Este archivo HTML es la página de Alumno formateada con estilo de impresión. No tiene muchos cambios respecto a `alumno.html`. La unica diferencia entre los dos archivos es que mientras en uno se genera un acordeón mediante un servlet, con las asignaturas en la que esta matriculado (con su respectiva nota), el servlet llamado `Imprimir.java` , encargado de la personalización de este archivo HTML, lo convierte a una tabla. Además también consta de un botón que ejecuta lo mismo que si se presiona el comando `Ctrl + P` (o el comando `Cmd + P` en caso de MacOS).
+
+```html
+<div class="divs">
+	<div style="justify-self:start">
+		<h1>Certificado sin validez académica</h1>
+		<p><b>DEW - Centro Educativo</b> certifica que D/Dª <b>{{nombre}}</b>, con DNI {{dni}}, matriculado/a en el curso 23/24, ha obtenido las calificaciones que se muestran en la siguiente tabla.</p>
+	</div>
+	<div style="justify-self:end">
+		<img id="perfil" style="border-radius:50%">
+	</div>
+</div>
+<h3>Resumen de notas:</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Acrónimo</th>
+            <th>Asignatura</th>
+            <th>Calificación</th>
+        </tr>
+    </thead>
+    <tbody>
+            {{asg}}
+    </tbody>
+</table>
+<p class=bolivia>{{fecha}}</p>
+<div class="center-button">
+    <button id="Boton" onclick="return imprimir()"> Imprimir Boletín</button>
+</div>
+```
+
+El método que se observa en el boton (`imprimir()`) realiza lo siguiente: En el momento que se pincha, esconde el botón para que de esta manera, al imprimir la página, no se muestra el botón, y una vez se ha seleccionado `Aceptar` o `Cancelar`, este vuelve a aparecer. Además como requiere de la foto del alumno/a, es necesario hacer otra petición AJAX para solicitar su imagen.
+
+```javascript
+$(document).ready(function() {
+    //pedir imagen alumno
+    $.ajax({
+        url: 'GestionDinamica',
+        type: 'GET',
+        datatype: 'json',
+        data:'opt=imagen',
+        headers: {
+            'Authorization': 'true'
+        },
+        success: function(data){
+            $("#perfil").attr("src", "data:image/png;base64,"+data.img); 
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+        // Manejar errores de la solicitud
+            alert('Error:', textStatus, errorThrown);
+        }
+    })
+})
+function imprimir()
+{
+    $('#Boton').hide();
+    setTimeout(function() {
+        window.print();
+        setTimeout(function() {
+            $('#Boton').show();
+        }, 10); // Ajusta el tiempo si es necesario
+    }, 5);
+}
+```
+
+### 4.4.3. Archivos Java: Servlet y Filters
+
+El proyecto consta de un total de 8 clases java, 6 servlets y 2 filtros:
+1. [Log3.java](#4431-log3java) (Filter)
+2. [Alumno.java](#4432-alumnojava) (Servlet)
+3. [Profesor.java](#4433-profesorjava) (Servlet)
+4. [Imprimir.java](#4434-imprimirjava) (Servlet)
+5. [GestionDinamica.java](#4435-gestiondinamicajava) (Servlet)
+6. [PublicarNotas.java](#4436-publicarnotasjava) (Servlet)
+7. [FinalizarSesion.java](#4437-finalizarsesionjava) (Servlet)
+8. [Authorized.java](#4438-authorizedjava) (Filter)
+
+### 4.4.3.1. Log3.java
+### 4.4.3.2. Alumno.java
+### 4.4.3.3. Profesor.java
+### 4.4.3.4. Imprimir.java
+### 4.4.3.5. GestionDinamica.java
+### 4.4.3.6. PublicarNotas.java
+### 4.4.3.7. FinalizarSesion.java
+### 4.4.3.8. Authorized.java
