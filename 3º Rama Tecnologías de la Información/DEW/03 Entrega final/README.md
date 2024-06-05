@@ -17,7 +17,7 @@
     3. [Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)
         1. [Entrada](#431-entrada)
         2. [Alumno](#432-alumno)
-            [Imprimir](#4231-imprimir)
+            1. [Imprimir](#4231-imprimir)
         3. [Profesor](#433-profesor)
     4. [Desarrollo del código](#44-desarrollo-del-código)
         
