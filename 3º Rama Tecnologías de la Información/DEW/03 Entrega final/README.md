@@ -618,6 +618,129 @@ function notamedia()
 }
 ``` 
 
+Para poder habilitar el modificar las notas de una asignatura, previamente se ha tenido que seleccionar una asignatura, para que asi el botón que habilita la edición de notas este habilitado. Como se ha observado en el funcionamiento de la aplicación (Véase [4.3. Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)), la interfaz de modificar notas, contiene una imagen, nombre del alumno y la nota que tiene actualmente. Accionar el bóton de "_calificar alumnos_", tiene que volcar la información de los alumnos en la interfaz. Para ello, hace lo siguiente: realiza una petición mediante AJAX a `GestionDinamica.java`, como se ha explicado anteriormente al inicio de este punto; pero con otro parámetro (`imagen=`+dni del alumno). En caso de que la petición se haya realizado correctamente, vuelca el valor de los datos necesarios y la foto en la interfaz. Además habilita los botones de interacción en la interfaz, como son los de modificar nota, avanzar o retroceder y poder introducir valores en el recuadro de números.
+
+```javascript
+//habilitar el modificar las notas (boton de modificar)
+function modificarNotas()
+{
+    indice=0
+    $.ajax({
+        url: 'GestionDinamica',
+        type: 'GET',
+        datatype: 'json',
+        data:'imagen='+alum[asignatura][indice].dni,
+        headers: {
+            'Authorization': 'true'
+        },
+        success: function(data){
+            $("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
+            $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+            $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+            $('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+        // Manejar errores de la solicitud
+            alert('Error:', textStatus, errorThrown);
+        }
+    })
+}
+```
+
+Los botones de avanzar y retroceder, se encargan de mover el array alum para poder seleccionar los distintos alumnos. Además tambien tienen que poner las imagenes y por tanto se requiere de otra petición AJAX. La única diferencia entre ambos métodos es el sentido en el que se mueve el array. 
+
+`//revisar los códigos porque parece residuo las primras lineas de avanzar y retroceder`
+
+```javascript
+function avanzar()
+{
+    if(indice == alum[asignatura].length-1)
+    {
+        indice = -1
+    }
+    indice++
+    $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+    $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+    $('#calificacion').val('')
+    $.ajax({
+        url: 'GestionDinamica',
+        type: 'GET',
+        datatype: 'json',
+        data:'imagen='+alum[asignatura][indice].dni,
+        headers: {
+            'Authorization': 'true'
+        },
+        success: function(data){
+            $("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
+            $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
+            $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
+            $('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+        // Manejar errores de la solicitud
+            alert('Error:', textStatus, errorThrown);
+        }
+    })
+}
+```
+
+En caso de retroceder, la variación respecto al código de arriba es lo siguiente:
+
+```javascript
+    if(indice == 0)
+    {
+        indice = alum[asignatura].length-1
+    }
+    indice--
+```
+
+Y el último método es la publicación de la nota modificada en la base de datos. Para esta tarea, se ha creado un nuevo servlet, llamado `PublicarNotas.java`, al cuál se pasa la petición y éste, realiza la inserción el la BD. Previamente a realizar la petición, se comprueba que la nota es valida. En caso de no serlo, se le notifica al usuario que debe introducir una nota valida. 
+
+Además de la petición, al haber una nota nueva hay que notificar al/a profesor/a de que se ha cambiado correctamente la nota, actualizar la nota del alumno que aparece en la tabla de alumnos y la nota media ya que la media se ha quedado obsoleta con el nuevo cambio. Y posteriormente, avanzar al siguiente alumno, para que sea aún más dinámico. 
+
+```javascript
+//notas introducidas en el input type
+function nuevaNota(nota)
+{
+    nota = parseFloat(nota).toFixed(2)
+    //aqui va la petición ajax
+    if(nota>=0 && nota<=10 && nota!="")
+    {
+        $.ajax({
+            url: './PublicarNotas', 
+            type: 'POST',
+            datatype: 'json', 
+            async:true,
+            headers: {
+                'Authorization': 'true'
+            },
+            data: 'acronimo='+alum[asignatura][indice].acronimo+'&nota='+nota+'&dni='+alum[asignatura][indice].dni,
+            success: function(data){
+                alert("Nota de "+ alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos+ " publicada con éxito.")
+                
+                $('#nota').text(nota)
+                alum[asignatura][indice].nota = nota
+                // Selecciona la celda específica y modifica su contenido
+                $('#miTabla tr').eq(indice+1).find('td').eq(1/*columna de notas, es fija*/).html(nota)
+                var tab = document.getElementById('miTabla');
+                var fila = tab.rows
+                var prueba = notamedia()
+                $('#miTabla tr').eq(fila.length-1).find('td').eq(1/*columna de notas, es fija*/).html(prueba)
+                avanzar()
+            },
+            error: function(err){
+                alert("Error: "+err.responseText)
+            }
+        })
+    }	
+    else
+    {
+        alert("Por favor, introduzca una nota válida")
+    }
+}    
+```
 
 ### 4.4.2.5. Alumno.html
+
+
 ### 4.4.2.6. PlantillaPeticion.html
