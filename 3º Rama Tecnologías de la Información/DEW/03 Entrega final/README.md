@@ -17,6 +17,7 @@
     3. [Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)
         1. [Entrada](#431-entrada)
         2. [Alumno](#432-alumno)
+            [Imprimir](#4231-imprimir)
         3. [Profesor](#433-profesor)
     4. [Desarrollo del código](#44-desarrollo-del-código)
         
@@ -168,6 +169,11 @@ En el caso de que se haya iniciado sesión como alumno, `Log3.java` redigirá la
 
 Además esta página, hace una petición `AJAX` a un servlet llamado `GestionDinamica.java` para obtener la imagen del usuario registrado en formato `.pngb64`. Se hace de esta manera por motivos de seguridad, ya que si no fuera así, si el usuario fuera conocedor del dni de algún alumno o profesor, podría acceder a la foto del usuario al que corresponde dicho dni. 
 
+### 4.2.3.1. Imprimir
+El usuario alumno también tiene que poder imprimir sus notas, como si fuera un boletín. Para ello, se ha creado un servlet, llamado `Imprimir.java`, que se encarga de formatear la página para estructurarla de manera que se pueda imprimir. Para no construir la página desde cero, se sigue le patrón que se emplea en `alumno.html` y `profesor.html`. Es decir, se emplea una plantilla HTML, en este caso, se llama `PlantillaPeticion.html`, y se reescribe mediante el servlet mencionado anteriomente. Para reescribir la página con los datos personalizados, es necesario hacer otra petición a CentroEducativo para obtener la información requerida. 
+
+![Interfaz de Imprimir](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/imprimir.png) (intentar poner lo de la firma)
+
 ### 4.3.3. Profesor
 En cambio, cuando el usuario que se ha registrado es un profesor, `Log3.java` redigirá al usuario a `Profesor.java`. Este servlet hace lo mismo que `Alumno.java`, pero son diferentes ya que cada uno construye la página de una manera distinta, por lo que el diseño de la interfaz no es igual debido a que tienen funciones distintas (tienen un rol distinto). 
 
@@ -178,3 +184,6 @@ Contruye `profesor.html` con los datos del profesor. También hace una petición
 Además de la petición `AJAX` que se realiza al servlet `GestionDinamica.java` para obtener la imagen del usuario registrado, éste tambien esta programado de manera que segun el párametro que se pasa en la petición hará una cosa u otra. En el caso de alumno, solo devuelve una imagen (la del usuario registrado en ese caso) pero porque en la pagina `alumno.html` no se realiza ninguna petición más, no hace falta. En este caso no es así. En el código de `profesor.html` se vera como hay más de una petición `AJAX`, que se usan para obtener la información de los alumnos (peticion a `GestionDinamica.java`) y de esa manera poder calificarlos (peticion a un nuevo servlet llamado `PublicarNotas.java` que se encarga de enviar las nuevas notas a la base de datos para que actualice los valores mediante el método `PUT`).
 
 ### 4.4. Desarrollo del código
+En el apartado anterior ([4.3 Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)), se introduce la funcionalidad de la aplicación y por ende, la del código (aunque no se haya entrado en detalle ni mucho menos). 
+
+En este apartado se va a hablar de como se ha implementado la lógica de funcionamiento explicada anteriormente. 
