@@ -8,4 +8,4 @@ Hasta ahora, hemos realizado 3 de las 4 entregas, en las cuales hemos sacado:
 
 1. **0.25**/0.25
 2. **0.65**/1 (los fallos de esta entrega están correidos ya)
-3. **0,85/**1
+3. **0,85/**1 Esta entrega corresponde al fichero de texto que hay en el repositorio actual
