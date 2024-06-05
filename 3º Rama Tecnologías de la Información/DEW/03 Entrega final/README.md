@@ -33,7 +33,15 @@
                 5. [Alumno.html](#4425-alumnohtml)
                 6. [PlantillaPeticion.html](#4426-plantillapeticionhtml)
             3. [Archivos Java: servlets y Filters](#443-archivos-java-servlet-y-filters)
-        
+                1. [Log3.java](#4431-log3java)
+                2. [Alumno.java](#4432-alumnojava) 
+                3. [Profesor.java](#4433-profesorjava) 
+                4. [Imprimir.java](#4434-imprimirjava) 
+                5. [GestionDinamica.java](#4435-gestiondinamicajava) 
+                6. [PublicarNotas.java](#4436-publicarnotasjava) 
+                7. [FinalizarSesion.java](#4437-finalizarsesionjava) 
+                8. [Authorized.java](#4438-authorizedjava) 
+                    
 # 1. Introducción
 Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amoros ... (completar)
 
