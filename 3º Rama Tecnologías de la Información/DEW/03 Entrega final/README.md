@@ -637,22 +637,7 @@ Para poder habilitar el modificar las notas de una asignatura, previamente se ha
 function modificarNotas()
 {
     indice=0
-    $.ajax({
-        url: 'GestionDinamica',
-        type: 'GET',
-        datatype: 'json',
-        data:'imagen='+alum[asignatura][indice].dni,
-        headers: {
-            'Authorization': 'true'
-        },
-        success: function(data){
-            $("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-        // Manejar errores de la solicitud
-            alert('Error:', textStatus, errorThrown);
-        }
-    })
+    $("#imgAlu").attr("src", "data:image/png;base64,"+alum[asignatura][indice].img);
     $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
     $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
     $('#calificacion, #prov, #btnDrcha, #btnIzqda').prop('disabled', false); //habilitar botones
@@ -671,22 +656,7 @@ function avanzar()
         indice = -1
     }
     indice++
-    .ajax({
-        url: 'GestionDinamica',
-        type: 'GET',
-        datatype: 'json',
-        data:'imagen='+alum[asignatura][indice].dni,
-        headers: {
-            'Authorization': 'true'
-        },
-        success: function(data){
-            $("#imgAlu").attr("src", "data:image/png;base64,"+data.img);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-        // Manejar errores de la solicitud
-            alert('Error:', textStatus, errorThrown);
-        }
-    })
+    $("#imgAlu").attr("src", "data:image/png;base64,"+alum[asignatura][indice].img);
     $('#nombre').text(alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos) //obtiene el texto del p id nombre
     $('#nota').text(alum[asignatura][indice].nota) //obtiene el texto de p id nota
     $('#calificacion').val('')
