@@ -250,8 +250,7 @@ Contruye `profesor.html` con los datos del profesor. También hace una petición
 
 Además de la petición `AJAX` que se realiza al servlet `GestionDinamica.java` para obtener la imagen del usuario registrado, éste tambien esta programado de manera que segun el párametro que se pasa en la petición hará una cosa u otra. En el caso de alumno, solo devuelve una imagen (la del usuario registrado en ese caso) pero porque en la pagina `alumno.html` no se realiza ninguna petición más, no hace falta. En este caso no es así. En el código de `profesor.html` se vera como hay más de una petición `AJAX`, que se usan para obtener la información de los alumnos (peticion a `GestionDinamica.java`) y de esa manera poder calificarlos (peticion a un nuevo servlet llamado `PublicarNotas.java` que se encarga de enviar las nuevas notas a la base de datos para que actualice los valores mediante el método `PUT`).
 
-Finalmente, se adjunta un video en el que se prueba todo lo mencionado anteriormente al detalle:
-[Funcionamiento Básico](https://personales.alumno.upv.es/esopurb/dew/imgs/FuncionamientoBasico.mov)
+Finalmente, se adjunta un video en el que se prueba todo lo mencionado anteriormente al detalle: **[Funcionamiento Básico](https://personales.alumno.upv.es/esopurb/dew/imgs/FuncionamientoBasico.mov)**
 
 ## 4.4. Desarrollo del código
 En el apartado anterior ([4.3 Funcionamiento de la aplicación](#43-funcionamiento-de-la-aplicación)), se introduce la funcionalidad de la aplicación y por ende, la del código (aunque no se haya entrado en detalle). 
