@@ -217,7 +217,7 @@ Como se puede observar el proyecto tiene distintos servlets y cumple cada uno un
 
 ## 4.3. Funcionamiento de la aplicación
 
-El funcionamiento de la aplicación se puede prever en la imagen anterior, pero en este apartado se explica con detenimiento.  
+El funcionamiento de la aplicación se puede preveer en la imagen anterior, pero en este apartado se explica con detenimiento.  
 
 ### 4.3.1. Entrada
 

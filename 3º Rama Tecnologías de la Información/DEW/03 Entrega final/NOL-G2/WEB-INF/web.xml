@@ -22,7 +22,7 @@
   </context-param>
   <context-param>
     <param-name>Directorio_imagenes</param-name>
-    <param-value>/home/user/Escritorio/NOLG2-Imgs</param-value>
+    <param-value>/home/user/tomcat/webapps/NOL-G2/imgs</param-value>
   </context-param>
   <security-constraint>
     <web-resource-collection>
