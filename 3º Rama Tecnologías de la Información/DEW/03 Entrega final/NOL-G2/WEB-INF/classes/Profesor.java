@@ -104,8 +104,6 @@ public class Profesor extends HttpServlet {
 	 	String dyn = profesor.getString("nombre") +" "+ profesor.getString("apellidos");
 	 	String finalu = Proftem.replace("{{nomalu}}", dyn);	 
 	 	String dynasg = "";
-	 	dyn = profesor.getString("dni");
-	 	finalu = finalu.replace("{{dni}}", dyn);
 	 	for(int i=0;i<asignaturas.length();i++) {
 		    		 //se ha añadido id en el botton de justo despues del h2 
 	 		dynasg += "<div class=\"accordion-item\">\n"

@@ -888,9 +888,9 @@ El proyecto consta de un total de 8 clases java, 6 servlets y 2 filtros:
 
 ### 4.4.3.1. Log3.java
 
-Es el filtro que se encarga de verificar el inicio de sesión con la BD, con ayuda de un protocolo de seguridad "_j_securty_check_". j_security_check, se encarga de verificar si existen las tupls de datos (dni,contraseña) en el archivo `tomcat-users.xml`. En caso de existir, facilita el páso al filter, que se encarga de obtener la clave con la que posteriormente, si el usuario asi lo necesita, realizar peticiones a CentroEducativo.
+Es el filtro que se encarga de verificar el inicio de sesión con la BD, con ayuda de un protocolo de seguridad "_j_securty_check_". j_security_check, se encarga de verificar si existen las tupls de datos (dni,contraseña) en el archivo `tomcat-users.xml`. En caso de existir, facilita el paso al filter, que se encarga de obtener la clave con la que posteriormente, si el usuario asi lo necesita, realizar peticiones a CentroEducativo.
 
-Los usuarios autorizados tienen distintos roles, que tendrán permisos especiales segun el rol. Esto también tiene que estar en el archivo `.xml`. El archiv resultante contiene lo siguiente:
+Los usuarios autorizados tienen distintos roles, que tendrán permisos especiales segun el rol. Esto también tiene que estar en el archivo `.xml`. El archivo resultante contiene lo siguiente:
 
 ```xml
     <role rolename="rolalu"/>
@@ -907,7 +907,7 @@ Los usuarios autorizados tienen distintos roles, que tendrán permisos especiale
     <user username="37264096W" password="123456" roles="rolalu"/>
 ```
 
-Para el filter, se ha programado el método doGet, en el que realiza lo siguiente:
+Para el filter, se ha programado el método `doGet(request, response)`, en el que realiza lo siguiente:
 
 ```java 
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {/*Código a continuación*/
@@ -994,8 +994,105 @@ Si el inicio de sesión ha sido correcto, el usuario accede a la página princip
 
 ### 4.4.3.2. Profesor.java
 
+Esta clase es la que se encarga de personalizar la página del usuario registrado con rol de profesor. Para ello, se ha programado el método `doGet(request, response)`. Antes de realizar cualquier consulta, se verifica que el que está intentando acceder no sea un usuario con un rol distinto de profesor:
 
+```java
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    if(request.isUserInRole("rolalu")) {
+        
+        response.sendRedirect(request.getContextPath() + "/");
+        return;
+    }
+```
 
+De esta manera, en caso de no tener el rol profesor, directamente se redirige al usuario al incio y se hace un return para que deje de ejecutarse el servlet. En caso de ser un profesor, para realizar las peticiones necesarias, primero hay que recuperar los datos de la sesión actual (la del profesor que ahora mismo está logueado).
+
+```java
+    //Recuperamos al profesor
+    HttpSession session = request.getSession();
+    String key = (String) session.getAttribute("key");
+    String dni = request.getRemoteUser();
+    JSONObject profesor = null;
+    JSONArray asignaturas = null;
+    List<String> cookies = (List<String>) session.getAttribute("cookies");
+```
+Una vez se ha establecido la sesión en el servlet, se realiza siguiente petición:
+
+```java
+    URL urlusr = new URL("http://"+request.getServerName()+":9090/CentroEducativo/profesores/"+dni+"?key="+key);
+    HttpURLConnection conusr = (HttpURLConnection) urlusr.openConnection();
+    for (String cookie: cookies) {
+        conusr.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+    }
+    conusr.setDoOutput(true);
+    conusr.setRequestMethod("GET");
+    conusr.setRequestProperty("accept", "application/json");
+    //ver la respuesta de CentroEducativo
+    if(conusr.getResponseCode() == 200) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(conusr.getInputStream()))) {
+                String r = "";
+                String resLine = null;
+                while ((resLine = br.readLine()) != null) {
+                r += resLine.trim();
+                }
+                profesor = new JSONObject(r);
+            }
+    } else {response.sendRedirect(request.getContextPath() + "/"); return;}
+```
+
+Con esta peticion, obtenemos los datos completos del profesor (guardados en un objeto JSON (profesor)), como pueden ser el nombre y los apellidos. Posteriormente, con el dni se solicitan las asignaturas que imparte:
+
+```java
+    URL urlasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/profesores/"+dni+"/asignaturas?key="+key);
+    HttpURLConnection conasg = (HttpURLConnection) urlasg.openConnection();
+    for (String cookie: cookies) {
+            conasg.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+    }
+    conasg.setDoOutput(true);
+    conasg.setRequestMethod("GET");
+    conasg.setRequestProperty("accept", "application/json");
+    //respuesta del server
+    if(conasg.getResponseCode() == 200) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(conasg.getInputStream()))) {
+                String r = "";
+                String resLine = null;
+                while ((resLine = br.readLine()) != null) {
+                r += resLine.trim();
+                }
+                asignaturas = new JSONArray(r);
+            }
+    } else {response.sendRedirect(request.getContextPath() + "/"); return;} 
+```
+
+La respuesta de CentroEducativo es un array de objetos JSON que contiene todos los datos de cada asignatura. Esta respuesta, se guarda en el objeto denominado `array` (objeto de tipo JSONArray). A partir de aqui, ya se tiene la información relevante para personalizar la página y por tanto, se lleva a cabo la reescritura de `Profesor.html`, gracias a los marcadores que tiene la página HTML (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml)). El código que realiza la reescritura es el siguiente:
+
+```java
+    //construccion de la pagina
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    String Profesorhtml = getServletContext().getRealPath("/WEB-INF/Profesor.html");
+    String Proftem = new String(Files.readAllBytes(Paths.get(Profesorhtml)), "UTF-8");
+    
+    String dyn = profesor.getString("nombre") +" "+ profesor.getString("apellidos");
+    String finalu = Proftem.replace("{{nomalu}}", dyn);	 
+    String dynasg = "";
+    for(int i=0;i<asignaturas.length();i++) {
+                    //se ha añadido id en el botton de justo despues del h2 
+        dynasg += "<div class=\"accordion-item\">\n"
+                + "    <h2 class=\"accordion-header\" id=\"heading" + i + "\">\n"
+                + "        <button onclick=\"return agregarFila('" + asignaturas.getJSONObject(i).getString("acronimo") + "', " + i + ")\" class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse" + i + "\" aria-expanded=\"false\" aria-controls=\"collapse" + i + "\">\n"
+                + "            " + asignaturas.getJSONObject(i).get("nombre") + "\n"
+                + "        </button>\n"
+                + "    </h2>\n"
+                + "</div>\n";
+
+    }
+    finalu = finalu.replace("{{asg}}", dynasg);
+    out.print(finalu); //pagina creada hasta aqui
+    out.close();
+```
+
+Para construir la página, se lee previamente donde se encuentra la plantilla (`WEB-INF/Profesor.html`) y se convierte a `String`. Posteriormente, se reescribe el primer marcador con el nombre del profesor y se guarda la primera modificación de la página en la variable `finalu`. Seguido de estop
 
 ### 4.4.3.3. Alumno.java
 ### 4.4.3.4. Imprimir.java
