@@ -34,8 +34,8 @@
                 6. [PlantillaPeticion.html](#4426-plantillapeticionhtml)
             3. [Archivos Java: servlets y Filters](#443-archivos-java-servlet-y-filters)
                 1. [Log3.java](#4431-log3java)
-                2. [Alumno.java](#4432-alumnojava) 
-                3. [Profesor.java](#4433-profesorjava) 
+                3. [Profesor.java](#4432-profesorjava)
+                3. [Alumno.java](#4433-alumnojava)
                 4. [Imprimir.java](#4434-imprimirjava) 
                 5. [GestionDinamica.java](#4435-gestiondinamicajava) 
                 6. [PublicarNotas.java](#4436-publicarnotasjava) 
@@ -43,7 +43,7 @@
                 8. [Authorized.java](#4438-authorizedjava) 
                     
 # 1. Introducción
-Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amoros ... (completar)
+Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amorós Córdoba, Carlos Cebellán Ferriz, Jorge Díez Forcada, Giorgi Dolidze, Segundo Gomez Lillo, Pau Perez Marco y Enrique Sopeña Urbano.
 
 Como herramientas de trabajo, se ha dispuesto de distintas maquinas virtuales proporcionadas por la asignatura, en las cuales está instalado el entorno de desarrollo en el que se ha realizado el proyecto, ECLIPSE, el servidor Apache Tomcat 9.0 y el código `.jar` correspondiente a la base de datos CentroEducativo.
 
@@ -68,26 +68,31 @@ Como se observa, hay 3 subtareas:
 3. **Acta en formato MD**. La novedad de esta tarea es realizar las actas en este formato, en vez de en un Word convencional. No se considera como tarea, pero es una nueva tecnología que se tiene que conocer y por tanto implica invertir tiempo en aprender y dominar. 
 
 ## 2.2. Hito 2
-En cuanto el hito 2, ya "_se entra en materia_", puesto que se avandona la toma de contacto y se empieza a desarrollar la aplicación para que se complan los distintos casos de uso del alumno. En esta etapa del proyecto, empieza a crecer ya la futura solución del escenario inicial. Los casos de uso del alumno, constan de distintas tareas:
-1. g
-2. h
-3. h
-4. rellenar
-5. h
-6. h
+En cuanto el hito 2, ya "_se entra en materia_", puesto que se avandona la toma de contacto y se empieza a desarrollar la aplicación para que se cumplan los distintos casos de uso del alumno. En esta etapa del proyecto, empieza a crecer ya la futura solución del escenario inicial. Los casos de uso del alumno, constan de distintas tareas:
+
+1. Identificarse como un/a alumno/a concreto/a (inicio de sesión).
+2. Consultar la lista de asignaturas en las que está matriculado/a.
+3. Consultar la nota obtenida en una de las asignaturas en la que está matriculado/a.
+4. Operación derivada: crear una página formateada para su impresión, con una relación de asignaturas y calificaciones obtenidas, a modo de certificado, incluyendo en la página la fotografía de el/la alumno/a
+5. Finalizar la sesión
 
 Además de éstas, hay que incluir las acciones que pueden hacer ambos tipos de usuarios, que es iniciar sesión en la plataforma online; y por tanto también hay que implementar el login de la aplicación. 
 
 ## 2.3. Hito 3
-El hito 3, consiste en, además de implementar los casos de uso del profesor, mejorar lo anterior en caso de error o en caso de que no fuera necesario para la entrega anterior pero si un requerimiento para la entrega final. Como por ejemplo, que los alumnos reciban la imagen también en formato `pngb64` (es un requerimiento para la entrega final pero no lo era para el hito 2).
-En cuanto a lo nuevo a desarrollar, los casos de uso del profesor; constan de las siguientes opciones:
-1. g
-2. h
-3. h
-4. rellenar
-5. h
-6. h
+El hito 3, consiste en, además de implementar los casos de uso del profesor y si fuera necesario, mejorar lo anterior en caso de error, o en su defecto, implementar ciertas cosas que en el hito anterior no eran necesarias pero si un requerimiento para la entrega final. Como por ejemplo, que los alumnos reciban la imagen también en formato `pngb64` (es un requerimiento para la entrega final pero no lo era para el hito 2).
 
+En cuanto a lo nuevo a desarrollar, los casos de uso del profesor; constan de las siguientes opciones:
+
+1. Identificarse como un profesor concreto (inicio de sesión).
+2. Consultar la lista de asignaturas12 que imparte. Se necesitará recorrer todas las asignaturas y anotar aquéllas en las que este profesor aparezca.
+3. Consultar la lista de alumnos en una de las asignaturas que imparte.
+4. Consultar o modificar la nota obtenida por uno de los alumnos en una de las asignaturas que imparte.
+5. Operación derivada: calcular la nota media de una de las asignaturas que imparte.
+6. Operación derivada AJAX: interacción ágil para consultar o modificar la nota.
+obtenida de cada uno de los alumnos en una de las asignaturas que imparte.
+    - Debe cargar todos los datos en el navegador, facilitando el recorrido entre los alumnos y volcando las modificaciones (o todas las calificaciones) al servidor.
+    - Debe incluir la fotografía del alumno visualizado.
+7. Finalizar la sesión.
 
 # 3. Soluciones del hito 1
 
@@ -96,6 +101,7 @@ En cuanto a lo nuevo a desarrollar, los casos de uso del profesor; constan de la
 Para la resolución de estos hitos, el equipo escribió los siguientes archivos, 3 servlets distintos (solucionando así el caso de los servlets), los cuales se han llamado `log0.java`, `log1.java` y `log2.java`; un script.sh (solucionando la tarea de hacer peticiones/modificaciones sobre la base de datos) y 2 actas en formato MD, una de ellas es el acta recogida el día de la presentación del equipo y la otra es la explicación detallada y al milimetro de como se llegó la solución de los problemas mencionados hasta ahora. 
 
 En cuanto al código de los servlets, para poder interactuar con ellos, se ha realizado un HTML, en el cual, al hacer el evento "submit", se dirije la petición al servlet. 
+
 ```html
 <h1>log0</h1>
 <form action = "log0" method = "GET">
@@ -106,17 +112,23 @@ En cuanto al código de los servlets, para poder interactuar con ellos, se ha re
     </p>
 </form>
 ```
+
 Para que los próximos log1.java y log2.java funcionen, basta con cambiar en el atributo action del formulario, el nombre del servlet al que tiene que acudir cuando se ejecute el `<input type="submit">`.
 
 Este servlet parte de la plantilla que crea ECLIPSE, el cual tiene muchas más predefinidas para proyectos web. Se encarga basicamente de recibir los datos
+
 ```java
 //aqui va el log0
 ```
+
 El servlet anterior, recibe una serie de modificaciones para cumplir con el log1.java propuesto en el enunciado del hito 1. La mejora que se le introduce es que registre los datos cuando alguien presione el `<input type="submit">`, estableciendole en una variable la ruta donde debe crear/modificar el fichero de registro.
+
 ```java 
 //ruta y escribir el resto no hace falta
 ``` 
+
 Y el log2.java respecto a log1.java es que en vez de definir la variable que establece la ruta, ésta tiene que estar guardada en el archivo web.xml y en el código del servlet solamente debe poner el nombre del atributo él cual hace referencia a la ruta previamente guardada en el web.xml.
+
 ```xml
 <!-- Define el nombre del atributo y su respectio directorio -->
 <context-param>
@@ -124,6 +136,13 @@ Y el log2.java respecto a log1.java es que en vez de definir la variable que est
     <param-value>/home/user/Escritorio/NOLG2Access.log</param-value>
 </context-param>
 ```
+
+Y el archivo Java, queda de la siguiente forma:
+
+```java
+//nuevo código
+```
+
 ## 3.2. Script.sh 
 Para la solución relacionada con la interacción de la BD, el equipo ha realizado un script en el que se han realizado consultas y modificado el estado inicial, añadiendo una asignatura.
 
@@ -212,7 +231,7 @@ En este apartado se va a hablar de como se ha implementado la lógica de funcion
 1. [Bibliotecas](#441-bibliotecas)
 2. [Páginas HTML](#442-páginas-html)
 3. [Clases Java](#443-archivos-java-servlet-y-filters)
-4. [Archivo web.xml]()
+4. [Archivo web.xml](#444-archivo-webxml)
 
 ### 4.4.1. Bibliotecas
 Para la producción de este proyecto, para el desarrollo de los servlets, se han empleado solamente las bibliotecas que incluye Java, como pueden ser la biblioteca IO, NET o UTIL, las que están en la maquina virtual, `javax.servlet.*`, y la otorgada por el profesor, la biblioteca `json-20240303.jar`. El equipo ha obtado por no utilizar ninguna biblioteca externa, ya que se pensó que si otra hubiera sido realmente un requerimiento, estaría explicada y habría sido facilitada por el profesor en su debido momento. Como esto no es así, no se ha optado por buscar otras bibliotecas, que quizas podrían haber solucionado algún problema de una manera distinta (pudiendo ser, a lo mejor, más optimas/eficientes).
@@ -258,8 +277,10 @@ No solo cuenta con CSS, también cuenta con unas breves lineas de código JavaSc
 </script>
 ``` 
 Para poder utilizar el código anterior, requiere, como se puede observar, la biblioteca ya explicada en el punto anterior (véase [4.4.1. Bibliotecas](#441-bibliotecas)), `JQuery`, y por ello, previamente al script, se ha importado dicha biblioteca.
+
 ### 4.4.2.2. Login.html
-En cuanto a la página de login.html, esta es aun más sencilla, ya que cuenta con un único formulario para introducir los datos que posteriormente se verificaran mediante "_j__security__check_". Este comprueba en el archivo xml del servidor (`tomcat-users.xml`) si es que está el usuario registrado en el sistema (esto a gran escala sería inviable). A su vez, lleva asociado un filter java (se asocia en el web.xml (Véase [poner punto luego]())), Log3.java (Véase [poner punto luego]()), que verificará si el usuario está accediendo por donde debe. En caso de ser así, creará una sesión y solicitará la clave de paso para que el usuario posteriormente pueda interactuar indirectamente con la BD (no es consciente ni de que existe una clave (key) o que en el propio código de su página hace distintas peticiones). Si no es así, le devuelve a la pagina inicial. 
+
+En cuanto a la página de login.html, esta es aun más sencilla, ya que cuenta con un único formulario para introducir los datos que posteriormente se verificaran mediante "_j__security__check_". Este comprueba en el archivo xml del servidor (`tomcat-users.xml`) si es que está el usuario registrado en el sistema (esto a gran escala sería inviable). A su vez, lleva asociado un filter java (se asocia en el web.xml (Véase [4.4.4. Archivo web.xml](#444-archivo-webxml))), Log3.java (Véase [4.4.3.1. Log3.java](#4431-log3java)), que verificará si el usuario está accediendo por donde debe. En caso de ser así, creará una sesión y solicitará la clave de paso para que el usuario posteriormente pueda interactuar indirectamente con la BD (no es consciente ni de que existe una clave (key) o que en el propio código de su página hace distintas peticiones). Si no es así, le devuelve a la pagina inicial. 
 
 ```html
 <div class="login-container">
@@ -272,7 +293,7 @@ En cuanto a la página de login.html, esta es aun más sencilla, ya que cuenta c
 </div>
 ``` 
 
-En cuanto a estilo, no se refleja ningún cambio respecto a la página mencionada anteriormente. Esta, como se ha mencionado anteriormente (Véase punto), consta del mismo código JavaScript, ya que según en que navegador, en caso de navegar para atrás, hay veces que en vez de redirigir directamente a la pagina principal, pasa otra vez por el login.html. De esta manera, desaparece la posibilidad de que aparezca el error 408. 
+En cuanto a estilo, no se refleja ningún cambio respecto a la página mencionada anteriormente. Esta, como se ha mencionado anteriormente (Véase [4.4.2.1. Index.html](#4421-indexhtml)), consta del mismo código JavaScript, ya que según en que navegador, en caso de navegar para atrás, hay veces que en vez de redirigir directamente a la pagina principal, pasa otra vez por el login.html. De esta manera, desaparece la posibilidad de que aparezca el error 408. 
 
 ### 4.4.2.3. Error.html y error2.html
 Para el tratamiento de errores, se han diseñado dos páginas, las cuales varían muy poco la una de la otra. Estás enmascaran dos tipos de errores: el usuario no esta registrado (las credenciales introducidas no están en el fichero `tomcat-users.xml`) y el caso en que el usuario tenga intención de investigar y probar que pasa si introduce según que URL en el navegador, para intentar acceder a un recurso al cual no puede acceso. Este caso tambien se aplica a usuarios no registrados.
@@ -301,7 +322,7 @@ Además esta cuenta tambien con un breve script de JavaScript para redirigir al 
 En cuanto a la página de `error2.html`, lo único que varía es la frase escrita en `<div class="error-message" style="margin-left: 0px; top:20%">`, la cual es: "_¿Qué buscas cotilla?_". Esta, también cuenta con el código JavaScript mostrado anteriormente encargado de redirigir al usuario a la página que estaba anteriormente.
 
 ### 4.4.2.4. Profesor.html
-Tanto profesor como las dos próximas páginas HTML, no están en el mismo directorio que las anteriores mencionadas. Éstas se esconden en la carpeta WEB-INF. De esta manera, se protege los recursos para que no puedan ser accedidos mediante la propia URL del archivo (haciendo imposible su acceso por cualquier usuario). Esto no supone un problema para la aplicación, ya que lo que se encarga de mostrar la página en la aplicación es el servlet que está asociado a cada HTML, en este caso Profesor.java (Véase [poner punto]()). Es decir, el resto de páginas que se van a describir, tienen función de plantilla, más que de interacción como tal. 
+Tanto profesor como las dos próximas páginas HTML, no están en el mismo directorio que las anteriores mencionadas. Éstas se esconden en la carpeta WEB-INF. De esta manera, se protege los recursos para que no puedan ser accedidos mediante la propia URL del archivo (haciendo imposible su acceso por cualquier usuario). Esto no supone un problema para la aplicación, ya que lo que se encarga de mostrar la página en la aplicación es el servlet que está asociado a cada HTML, en este caso Profesor.java (Véase [4.4.3.2. Profesor.java](#4432-profesorjava)). Es decir, el resto de páginas que se van a describir, tienen función de plantilla, más que de interacción como tal. 
 
 Los profesores tienen unos casos de uso específicos (Véase apartado [2.3. Hito 3](#23-hito-3)) y por tanto una plantilla específica. En este archivo, se encuentran distintos marcadores que posteriormente serán reescritos por el servlet. Estos se identifican de la siguiente manera: `{{marcador}}`. 
 
@@ -342,7 +363,7 @@ Siguiendo la estructura de la página, se encuentra el siguiente gran contenedor
     </div>
 ```
 
-El div `<div class = "contenedor"></div>` es la zona de la interfaz general, donde el profesor visualiza las asignaturas y sus respectivos alumnos de las mismas. Además tiene el bóton que posibilita la modificación de las notas de los alumnos, según la asignatura seleccionada. Como se puede observar en la sección de código hay otro marcador, en este caso `{{asg}}`. El servlet Profesor.java (Véase [poner punto]()) reescribirá en este punto de la página, un acordeón de asignaturas que tendra tantas filas como asignaturas que imparte. También se puede apreciar lo que es el comienzo de una tabla, con su etiqueta `<thead></thead>` y su respectivas filas y celdas, y el comienzo de un `<tbody></tbody>`, que en la plantilla está vacío. Esto se debe a que esta tabla se va actualizando dinámicamente mediante JavaScript, según se haya seleccionado una asignatura u otra para corregir, o en caso de que se haya deseleccionado, desaparece. Finalmente, se aprecia también el botón mencionado anteriormente que al ser clicado, acciona el método que habilita la posibilidad de modificar las notas de los alumnos de la asignatura seleccionada.
+El div `<div class = "contenedor"></div>` es la zona de la interfaz general, donde el profesor visualiza las asignaturas y sus respectivos alumnos de las mismas. Además tiene el bóton que posibilita la modificación de las notas de los alumnos, según la asignatura seleccionada. Como se puede observar en la sección de código hay otro marcador, en este caso `{{asg}}`. El servlet Profesor.java (Véase [4.4.3.2. Profesor.java](#4432-profesorjava)) reescribirá en este punto de la página, un acordeón de asignaturas que tendra tantas filas como asignaturas que imparte. También se puede apreciar lo que es el comienzo de una tabla, con su etiqueta `<thead></thead>` y su respectivas filas y celdas, y el comienzo de un `<tbody></tbody>`, que en la plantilla está vacío. Esto se debe a que esta tabla se va actualizando dinámicamente mediante JavaScript, según se haya seleccionado una asignatura u otra para corregir, o en caso de que se haya deseleccionado, desaparece. Finalmente, se aprecia también el botón mencionado anteriormente que al ser clicado, acciona el método que habilita la posibilidad de modificar las notas de los alumnos de la asignatura seleccionada.
 
 ```html
     <div class = "contenedor">
@@ -430,7 +451,7 @@ $(document).ready(function() {
 
 Para no saturar la lectura de código, se van a explicar a continuación fragmeto a fragmento con su debida explicación. Todos estos eventos y peticiones se encuentran dentro evento `$(document).ready(function (){...})`.
 
-El primer fragmento de código es una petición AJAX en la que se solicita a un servlet llamado `GestionDinamica.java` (Véase [poner punto]()), el cuál ha sido programado para recibir peticiones relacionadas con la gestión dinámicas de las páginas, tanto profesor.html como en la de alumno e imprimir, que se verá posteriormente (Véase puntos [4.4.2.5. Alumno.html](#4425-alumnohtml) y [PlantillaPeticion.html](#4426-plantillapeticionhtml)). En este caso se realiza una peticion con los parámetros definidos en `data`. Esto es así porque el servlet ha sido programado para que cuando reciba estos parámetros, devuelva la imagen del usuario activo. Además se añade el atributo `headers`, que tiene la función de proteger las peticiones en caso de que se introduzcan desde la URL del navegador, en vez de como es debido. Para proteger este caso, se ha desarrollado un nuevo filtro (además del ya existente), llamado `Authorized.java` (Véase [poner punto]()), que verifica si contiene el atributo header en la petición, y en caso de tenerlo, que coincida con el valor asignado `true`. En cualquier otro caso, no permite el acceso y devuelve _`SC_FORBIDDEN`_, haciendo así que aparezca la página de error2.html ya mencionada anteriormente (Véase [4.4.2.3. Error.html y error2.html](#4423-errorhtml-y-error2html))
+El primer fragmento de código es una petición AJAX en la que se solicita a un servlet llamado `GestionDinamica.java` (Véase [4.4.3.5. GestionDinamica.java](#4435-gestiondinamicajava)), el cuál ha sido programado para recibir peticiones relacionadas con la gestión dinámicas de las páginas, tanto profesor.html como en la de alumno e imprimir, que se verá posteriormente (Véase [4.4.2.5. Alumno.html](#4425-alumnohtml) y [PlantillaPeticion.html](#4426-plantillapeticionhtml)). En este caso se realiza una peticion con los parámetros definidos en `data`. Esto es así porque el servlet ha sido programado para que cuando reciba estos parámetros, devuelva la imagen del usuario activo. Además se añade el atributo `headers`, que tiene la función de proteger las peticiones en caso de que se introduzcan desde la URL del navegador, en vez de como es debido. Para proteger este caso, se ha desarrollado un nuevo filtro (además del ya existente), llamado `Authorized.java` (Véase [4.4.3.8.](#4438-authorizedjava)), que verifica si contiene el atributo header en la petición, y en caso de tenerlo, que coincida con el valor asignado `true`. En cualquier otro caso, no permite el acceso y devuelve _`SC_FORBIDDEN`_, haciendo así que aparezca la página de error2.html ya mencionada anteriormente (Véase [4.4.2.3. Error.html y error2.html](#4423-errorhtml-y-error2html))
 
 ```javascript
     //pedir imagen profesor
@@ -527,7 +548,7 @@ Luego, para mejorar la interacción natural del usuario se han añadido una seri
     })
 ```
 Todo este código se ejecuta cuando el documento se esta cargando, pero no es el único método que tiene la página, tiene bastantes más para hacer del HTML una página dinámica y funcional.
-El primer método que se ejecuta es el que agrega las filas a la tabla antes mencionada. Cuando se seleccione una asignatura (haciendo click en el nombre de la misma), activa el siguiente método (descrito en el código a contiunuación), utilizando los parámetros `acronimo` y `num`. Estos dos parámetros corresponden a que de esta manera se puede asociar al acrónimo con un numero y de esta manera se puede recorrer la matriz e seleccionar la asignatura (primer indice). Estos valores vienen escritos desde el servlet de Profesor.java, cuando genera el acordeon. De esta manera coincide el acrónimo, con el número y con la posición en el array de alum (Véase [Poner punto de profesor.java]()).
+El primer método que se ejecuta es el que agrega las filas a la tabla antes mencionada. Cuando se seleccione una asignatura (haciendo click en el nombre de la misma), activa el siguiente método (descrito en el código a contiunuación), utilizando los parámetros `acronimo` y `num`. Estos dos parámetros corresponden a que de esta manera se puede asociar al acrónimo con un numero y de esta manera se puede recorrer la matriz e seleccionar la asignatura (primer indice). Estos valores vienen escritos desde el servlet de Profesor.java, cuando genera el acordeon. De esta manera coincide el acrónimo, con el número y con la posición en el array de alum (Véase [4.4.3.2 Profesor.java](#4432-profesorjava)).
 
 ```javascript
 function agregarFila(acronimo, num) {
@@ -674,7 +695,7 @@ En caso de retroceder, la variación respecto al código de arriba es lo siguien
     indice--
 ```
 
-Y el último método es la publicación de la nota modificada en la base de datos. Para esta tarea, se ha creado un nuevo servlet, llamado `PublicarNotas.java`, al cuál se pasa la petición y éste, realiza la inserción el la BD. Previamente a realizar la petición, se comprueba que la nota es valida. En caso de no serlo, se le notifica al usuario que debe introducir una nota valida. 
+Y el último método es la publicación de la nota modificada en la base de datos. Para esta tarea, se ha creado un nuevo servlet, llamado `PublicarNotas.java` (Véase [4.4.3.6. PublicarNotas.java](#4436-publicarnotasjava)), al cuál se pasa la petición y éste, realiza la inserción el la BD. Previamente a realizar la petición, se comprueba que la nota es valida. En caso de no serlo, se le notifica al usuario que debe introducir una nota valida. 
 
 Además de la petición, al haber una nota nueva hay que notificar al/a profesor/a de que se ha cambiado correctamente la nota, actualizar la nota del alumno que aparece en la tabla de alumnos y la nota media ya que la media se ha quedado obsoleta con el nuevo cambio. Y posteriormente, avanzar al siguiente alumno, para que sea aún más dinámico. 
 
@@ -829,8 +850,8 @@ function imprimir()
 
 El proyecto consta de un total de 8 clases java, 6 servlets y 2 filtros:
 1. [Log3.java](#4431-log3java) (Filter)
-2. [Alumno.java](#4432-alumnojava) (Servlet)
-3. [Profesor.java](#4433-profesorjava) (Servlet)
+2. [Profesor.java](#4432-profesorjava) (Servlet)
+3. [Alumno.java](#4433-alumnojava) (Servlet)
 4. [Imprimir.java](#4434-imprimirjava) (Servlet)
 5. [GestionDinamica.java](#4435-gestiondinamicajava) (Servlet)
 6. [PublicarNotas.java](#4436-publicarnotasjava) (Servlet)
@@ -838,10 +859,13 @@ El proyecto consta de un total de 8 clases java, 6 servlets y 2 filtros:
 8. [Authorized.java](#4438-authorizedjava) (Filter)
 
 ### 4.4.3.1. Log3.java
-### 4.4.3.2. Alumno.java
-### 4.4.3.3. Profesor.java
+### 4.4.3.2. Profesor.java
+### 4.4.3.3. Alumno.java
 ### 4.4.3.4. Imprimir.java
 ### 4.4.3.5. GestionDinamica.java
 ### 4.4.3.6. PublicarNotas.java
 ### 4.4.3.7. FinalizarSesion.java
 ### 4.4.3.8. Authorized.java
+
+
+### 4.4.4. Archivo web.xml
