@@ -118,13 +118,39 @@ Para que los próximos log1.java y log2.java funcionen, basta con cambiar en el 
 Este servlet parte de la plantilla que crea ECLIPSE, el cual tiene muchas más predefinidas para proyectos web. Se encarga basicamente de recibir los datos
 
 ```java
-//aqui va el log0
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    PrintWriter pw = response.getWriter();
+    
+    String usuario = request.getParameter("Name");
+    String email = request.getParameter("Email");
+    String psswd = request.getParameter("Password");
+    String preTituloHTML5 = "<!DOCTYPE html>\n<html>\n<head>\n" + "<meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\" />";
+    String ip = request.getRemoteAddr();
+    String method = request.getMethod();
+    String date = LocalDateTime.now().toString();
+    String uri = request.getRequestURI();
+    response.setContentType("text/html");
+    
+    pw.println(preTituloHTML5);
+    pw.println(date + " Nombre: " + usuario + " Email: " + email + " Contraseña: "+ psswd + " " + ip + " " + getServletName() + " " + uri + " " + method +" \n");
+}
 ```
 
 El servlet anterior, recibe una serie de modificaciones para cumplir con el log1.java propuesto en el enunciado del hito 1. La mejora que se le introduce es que registre los datos cuando alguien presione el `<input type="submit">`, estableciendole en una variable la ruta donde debe crear/modificar el fichero de registro.
 
 ```java 
-//ruta y escribir el resto no hace falta
+    //codigo anterior, exactamente igual que log0.java
+    String salida = date + " Nombre: " + usuario + " Email: " + email + " Contraseña: "+ psswd + " " + ip + " " + getServletName() + " " + uri + " " + method +" \n";
+    String rutaArchivo = "/home/user/Escritorio/DEWTrabLog1.log";
+    try {
+        FileWriter fw = new FileWriter(rutaArchivo,true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(salida);
+        bw.close();
+        fw.close();
+    } catch(Exception e) {
+        System.out.println("Error");
+    }
 ``` 
 
 Y el log2.java respecto a log1.java es que en vez de definir la variable que establece la ruta, ésta tiene que estar guardada en el archivo web.xml y en el código del servlet solamente debe poner el nombre del atributo él cual hace referencia a la ruta previamente guardada en el web.xml.
@@ -137,10 +163,13 @@ Y el log2.java respecto a log1.java es que en vez de definir la variable que est
 </context-param>
 ```
 
-Y el archivo Java, queda de la siguiente forma:
+Y el archivo Java, se cambia la variable `rutaArchivo` por un objeto de la clase File, resultando el código de la siguiente manera:
 
 ```java
-//nuevo código
+    // código igual que log1.java
+    File file1 = new File(getServletContext().getInitParameter("rutaArchivo"));
+    FileWriter pw = new FileWriter(file1,true);
+    //código igual que log1.java
 ```
 
 ## 3.2. Script.sh 
