@@ -781,7 +781,7 @@ En el código se encuentran los marcadores, que como se ha explicado antes, sirv
 
 
 ### 4.4.2.6. PlantillaPeticion.html
-Este archivo HTML es la página de Alumno formateada con estilo de impresión. No tiene muchos cambios respecto a `alumno.html`. La unica diferencia entre los dos archivos es que mientras en uno se genera un acordeón mediante un servlet, con las asignaturas en la que esta matriculado (con su respectiva nota), el servlet llamado `Imprimir.java` , encargado de la personalización de este archivo HTML, lo convierte a una tabla. Además también consta de un botón que ejecuta lo mismo que si se presiona el comando `Ctrl + P` (o el comando `Cmd + P` en caso de MacOS).
+Este archivo HTML es la página de Alumno formateada con estilo de impresión. No tiene muchos cambios respecto a `alumno.html`. La unica diferencia entre los dos archivos es que mientras en uno se genera un acordeón mediante un servlet, con las asignaturas en la que esta matriculado (con su respectiva nota), el servlet llamado `Imprimir.java` , encargado de la personalización de este archivo HTML, lo convierte a una tabla. Además también consta de un botón que ejecuta lo mismo que si se presiona el comando `Ctrl + P` (o el comando `⌘ + P` en caso de MacOS).
 
 ```html
 <div class="divs">
