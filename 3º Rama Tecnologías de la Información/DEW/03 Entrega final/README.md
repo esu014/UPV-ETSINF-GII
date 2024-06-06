@@ -1090,9 +1090,10 @@ La respuesta de CentroEducativo es un array de objetos JSON que contiene todos l
     finalu = finalu.replace("{{asg}}", dynasg);
     out.print(finalu); //pagina creada hasta aqui
     out.close();
+}
 ```
 
-Para construir la página, se lee previamente donde se encuentra la plantilla (`WEB-INF/Profesor.html`) y se convierte a `String`. Posteriormente, se reescribe el primer marcador con el nombre del profesor y se guarda la primera modificación de la página en la variable `finalu`. Seguido de estop
+Para construir la página, se lee previamente donde se encuentra la plantilla (`WEB-INF/Profesor.html`) y se convierte a `String`. Posteriormente, se reescribe el primer marcador con el nombre del profesor y se guarda la primera modificación de la página en la variable `finalu`. Seguido de esto, se realiza un bucle en el que se va a generar un contenedor (con su respectivo diseño y elementos internos) al que se le asignará una funcionalidad posteriormente (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml)), por cada asignatura que tiene el/la  profesor/a. Esto se va a estar guardando en la variable `dynasg`, que será la que reemplaze el marcador `{{asg}}` una vez se acabe el bucle. Por lo que al final, la variable `finalu` se habrá reescrito 2 veces, una por marcador. Una vez se ha reescrito, se escribe la página.
 
 ### 4.4.3.3. Alumno.java
 ### 4.4.3.4. Imprimir.java
