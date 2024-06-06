@@ -887,7 +887,116 @@ El proyecto consta de un total de 8 clases java, 6 servlets y 2 filtros:
 8. [Authorized.java](#4438-authorizedjava) (Filter)
 
 ### 4.4.3.1. Log3.java
+
+Es el filtro que se encarga de verificar el inicio de sesión con la BD, con ayuda de un protocolo de seguridad "_j_securty_check_". j_security_check, se encarga de verificar si existen las tupls de datos (dni,contraseña) en el archivo `tomcat-users.xml`. En caso de existir, facilita el páso al filter, que se encarga de obtener la clave con la que posteriormente, si el usuario asi lo necesita, realizar peticiones a CentroEducativo.
+
+Los usuarios autorizados tienen distintos roles, que tendrán permisos especiales segun el rol. Esto también tiene que estar en el archivo `.xml`. El archiv resultante contiene lo siguiente:
+
+```xml
+    <role rolename="rolalu"/>
+    <role rolename="rolpro"/>
+  
+    <user username="23456733H" password="123456" roles="rolpro"/>
+    <user username="10293756L" password="123456" roles="rolpro"/>
+    <user username="06374291A" password="123456" roles="rolpro"/>
+    <user username="65748923M" password="123456" roles="rolpro"/>
+    <user username="12345678W" password="123456" roles="rolalu"/>
+    <user username="23456387R" password="123456" roles="rolalu"/>
+    <user username="34567891F" password="123456" roles="rolalu"/>
+    <user username="93847525G" password="123456" roles="rolalu"/>
+    <user username="37264096W" password="123456" roles="rolalu"/>
+```
+
+Para el filter, se ha programado el método doGet, en el que realiza lo siguiente:
+
+```java 
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {/*Código a continuación*/
+```
+
+- Recupera la sesión que se ha creado cuando se le han introducido los datos en el formulario.   
+
+```java
+    HttpServletRequest req = (HttpServletRequest) request;
+    HttpSession session = req.getSession(true);
+    session.setMaxInactiveInterval(10000);
+
+    URL connection = new URL("http://"+req.getServerName()+":9090/CentroEducativo/login");
+    HttpURLConnection con = (HttpURLConnection) connection.openConnection();
+
+    String dni = req.getRemoteUser();
+```
+
+- En caso de que el dni sea distinto de `null`, construye una petición mediante el método `POST` a /CentroEducativo/login, para obtener la clave de la sesión con la que posteriormente se realizaran todo tipo de peticiones (y para hacerlas, hace falta la clave, que es la autorización de la BD y con la que se pueden realizar peticiones. Es decir, la clave te autoriza a interactuar con la BD). Adémas previamente se tenía un `if` en el que se verificaba si el usuario tenia ya sesión iniciada. Se elimnó esta condición ya que generaba problemas a la hora de moverse con las interacciones del navegador (flecha de retroceso, avanzar, etc). Además tambien, en caso de que hubiera una sesión, se quita la key asociada a esta sesión, puesto que también generaba errores, porque el la BD no entencia como una sesion que tiene una clave, solicite otra (cosa que se hace siempre que entras en el login.html, solicitar una key. Por eso se ha decidido poner la key de la sesión a nulo). De esta manera, todo el que ha acabado llegando a la página de login.html, se tiene que autentificar siempre. Esta política, mejora la seguridad ya que en caso de que alguien se haya dejado la sesión abierta, se vuelve a solicitar el inicio de sesión (en el caso de acabar en el login.html).
+
+```java
+    session.setAttribute("key", "");
+    if(dni != null) {
+        String pass = "123456";
+        JSONObject cred = new JSONObject();
+        cred.put("dni", dni);
+        cred.put("password", pass);
+        
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept-Charset", "UTF-8");
+        
+        try {
+            BufferedWriter buff = new BufferedWriter(new OutputStreamWriter(con.getOutputStream(),"UTF-8"));
+            buff.write(cred.toString());
+            buff.flush();
+            buff.close();
+            
+        } catch (Exception e) {}
+```
+- Se trata la respuesta del servidor. En caso de ser `200 OK`, se lee la respuesta, se generan unas cookies con la BD y se asocian al usuario que se ha iniciado sesión, se le atribuye a la sesión creada el dni, la contraseña y la clave devuelta de CentroEducativo. Además tambien registra en un fichero, o en su defecto, si no existe se crea y posteriormente se escribe, datos relacionados con el registro de la nueva sesión.
+
+```java
+        if(con.getResponseCode() == 200) {
+            List<String> cookies = con.getHeaderFields().get("Set-Cookie"); 
+            session.setAttribute("cookies", cookies);
+            String resKey = "";
+            try {
+                BufferedReader buff2 = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
+                String resline = null;
+                while((resline = buff2.readLine()) != null) {
+                    resKey += resline.trim();
+                }
+                
+                session.setAttribute("dni", dni);
+                session.setAttribute("password", pass);
+                session.setAttribute("key", resKey);
+                
+                String salida = LocalDateTime.now().toString() +" "+ dni +" "+ req.getRemoteAddr() +" "+ req.getMethod() +"\n";
+                
+                try {
+                    
+                    
+                    FileWriter pw = new FileWriter(new File(req.getServletContext().getInitParameter("rutaArchivo")),true);
+                    BufferedWriter bw = new BufferedWriter(pw);
+                    bw.write(salida);
+                    bw.close();
+                    pw.close();
+                } catch(Exception e) {
+                    System.out.println("Error");
+                }
+                
+            } catch(Exception e) {}     
+        }      
+    }	      
+    // pass the request along the filter chain
+    chain.doFilter(request, response);
+}
+```
+
+Si el inicio de sesión ha sido correcto, el usuario accede a la página principal que ha solicitado (si es alumno, a alumno.java y en su defecto, si es profesor, a profesor.java. Esto es así porque las peticiones de los formularios se realizan a los servlets, que son quienes posteriormente se encargan de generar estás páginas).
+
 ### 4.4.3.2. Profesor.java
+
+
+
+
 ### 4.4.3.3. Alumno.java
 ### 4.4.3.4. Imprimir.java
 ### 4.4.3.5. GestionDinamica.java
