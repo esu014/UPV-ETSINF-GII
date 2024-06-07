@@ -347,7 +347,7 @@ Como primer contenedor que está dentro del contenedor principal, se encuentra e
             </form>
         </div>
     </div>
-    <!-- Resto de la página, todo lo comentado a continuación está ubicado aqui -->
+    <!-- Resto de la página, todo lo que se comenta a continuación está ubicado aqui -->
 </div>
 ```
 
