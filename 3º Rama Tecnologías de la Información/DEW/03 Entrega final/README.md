@@ -42,7 +42,11 @@
                 7. [FinalizarSesion.java](#4437-finalizarsesionjava) 
                 8. [Authorized.java](#4438-authorizedjava) 
             4. [Archivo web.xml](#444-archivo-webxml)
-                    
+5. [Testing](#5-testing)
+6. [Conclusiones y trabajo en grupo](#6-conclusiones-y-trabajo-en-grupo)
+    1. [Conclusiones](#61-conclusiones)
+    2. [Trabajo en grupo](#62-trabajo-en-grupo)
+
 # 1. Introducción
 Este trabajo sobre NotasOnline, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amorós Córdoba, Carlos Cebellán Ferriz, Jorge Díez Forcada, Giorgi Dolidze, Segundo Gómez Lillo, Pau Pérez Marco y Enrique Sopeña Urbano.
 
