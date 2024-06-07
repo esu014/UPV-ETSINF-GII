@@ -206,7 +206,7 @@ En cuanto a esta tarea, no se ha considerado una tarea como tal, solo se ha inve
 En esta sección de la memoria se va a explicar con detenimiento como ha sido el desarrollo del proyecto. Se parte de la base de que primero se ha desarrollado el inicio de sesión, posteriormente los casos de uso del alumno y finalmente los del profesor. Este orden ha llevado a que ha habido que rectificar y corregir/mejorar el código que se había escrito inicialmente, ya que nuevas funcionalidades pueden requerir de cambios en cosas que ya estaban asentadas.
 
 ## 4.1. Estructura de ficheros del proyecto
-Primero de todo, se ha definido la estructura del proyecto, la manera en la que se van a organizar los archivos. Por suerte, esto no fue un "_quebradero de cabeza_" ya que, al utilzar una plantilla para poyectos web de ECLIPSE, este te hace la estructura inicial. Lo único que ha habido que decidir es donde colocar los archivos `HTML` y/o `.css`. El equipo decidió no crear archivos `.css` ya que se prefirió integrarlos en la propia página HTML. Las imágenes de los alumnos y profesores, se ha establecido mediante el web.xml en el directorio `home/user/Escritorio` de la maquina host. 
+Primero de todo, se ha definido la estructura del proyecto, la manera en la que se van a organizar los archivos. Por suerte, esto no fue un "_quebradero de cabeza_" ya que, al utilzar una plantilla para poyectos web de ECLIPSE, este te hace la estructura inicial. Lo único que ha habido que decidir es donde colocar los archivos `HTML` y/o `.css`. El equipo decidió no crear archivos `.css` ya que se prefirió integrarlos en la propia página HTML. Las imágenes de los alumnos y profesores, se ha establecido mediante el web.xml en el directorio `home/user/tomcat/webapps/NOL-G2/imgs`. De esta manera, si el proyecto se migra a otra maquina y se instala en la carpeta tomcat/webapps para publicar el proyecto en la web, las imágenes estarán siempre disponibles.  
 
 ## 4.2. Estructura del proyecto
 La estructura del proyecto en cuanto a funcionamiento es la siguiente:
@@ -540,7 +540,7 @@ El siguiente fragmento de código está relacionado con la obtención de los alu
         },
         error: function(jqXHR, textStatus, errorThrown) {
         // Manejar errores de la solicitud
-            alert('Error:', textStatus, errorThrown);
+            alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
         }
     })
 ```
@@ -806,7 +806,32 @@ En el código se encuentran los marcadores, que como se ha explicado antes, sirv
     </div>
 </div>
 ```
+Para la asignación de la imagen del alumno, la página tiene un breve código JavaScript:
 
+```html
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        //pedir imagen alumno
+        $.ajax({
+            url: 'GestionDinamica',
+            type: 'GET',
+            datatype: 'json',
+            data:'opt=imagen',
+            headers: {
+                'Authorization': 'true'
+            },
+            success: function(data){
+                $("#perfil").attr("src", "data:image/png;base64,"+data.img); 
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Manejar errores de la solicitud
+                alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
+            }
+        })
+    })
+</script>
+```
 
 ### 4.4.2.6. PlantillaPeticion.html
 Este archivo HTML es la página de Alumno formateada con estilo de impresión. No tiene muchos cambios respecto a `alumno.html`. La unica diferencia entre los dos archivos es que mientras en uno se genera un acordeón mediante un servlet, con las asignaturas en la que esta matriculado (con su respectiva nota), el servlet llamado `Imprimir.java` , encargado de la personalización de este archivo HTML, lo convierte a una tabla. Además también consta de un botón que ejecuta lo mismo que si se presiona el comando `Ctrl + P` (o el comando `⌘ + P` en caso de MacOS).
@@ -858,7 +883,7 @@ $(document).ready(function() {
         },
         error: function(jqXHR, textStatus, errorThrown) {
         // Manejar errores de la solicitud
-            alert('Error:', textStatus, errorThrown);
+            alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
         }
     })
 })
@@ -1241,7 +1266,7 @@ Finalmente, el HTML completo, con los datos de las asignaturas integrados, se en
 
 ### 4.4.3.4. Imprimir.java
 
-Este servlet se ha creado para manejar la creación dinámica de una pagina html, PlantillaPeticion.html (Véase [4.4.2.6. PlantillaPeticion.html](#4426-plantillapeticionhtml)). Este servlet se encarga, al igual que Alumno.java (Véase [4.4.3.3](#4433-alumnojava)) en diseñar la pagina para que obtenga un estilo parecido a como si fuera un pdf y que se pueda imprimir en caso de ser necesario. 
+Este servlet se ha creado para manejar la creación dinámica de una pagina html, PlantillaPeticion.html (Véase [4.4.2.6. PlantillaPeticion.html](#4426-plantillapeticionhtml)). Este servlet se encarga, al igual que Alumno.java (Véase [4.4.3.3. Alumno.java](#4433-alumnojava)) en diseñar la pagina para que obtenga un estilo parecido a como si fuera un pdf y que se pueda imprimir en caso de ser necesario. 
 
 La implementación del código es muy similar a la anterior, ya que ambas se encargan de la creación dinámica de la pagina web, en este caso `PlantillaPeticion.html`. Vuelve a hacer peticiones a CentroEducativo mediante el método GET pero esta vez, genera una tabla con todas las asignaturas; con sus debidas notas y acrónimos, añade la foto del usuario y pone la fecha del día que ha sido expedido el boletín de las notas.
 
@@ -1299,6 +1324,177 @@ Como se puede observar en el `try`, ahí es donde esta la diferencia principal d
 Una vez la página ha sido creada, si el usuario quisiera imprimírsela, tendría una vista similar a la de un pdf a la hora de seleccionar la opción imprimir boletín.
 
 ### 4.4.3.5. GestionDinamica.java
+
+Este servlet es el encargadado de gestionar todas las peticiones que se realizan mediante AJAX. Las peticiones AJAX que se realizan en las páginas HTML del proyecto, van todas enviadas a GestionDinamica.java (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml) y [4.4.2.5. Alumno.html](#4425-alumnohtml)), salvo la de publicar las notas modificadas, que por comodidad, la gestiona otro servlet (Véase [4.4.3.6. PublicarNotas.java](#4436-publicarnotasjava)). 
+
+El código implementa el método `doGet(request, response)`, que se ha configurado de manera que pueda contestar a distintas peticiones con distintos parámetros. Para atender a las distintas peticiones, se ha programado para que reciba un atributo llamado `opt`. Este atributo se establece a la hora de realizar la petición en el código JavaScript y se comprobara la existencia de este en el servlet. Su valor se guarda en la variable definida como `opt`, de tipo `String`. De esta manera, se puede comparar el valor enviado en la peticion y realizar una cosa u otra segun el valor recibido (opt=imagen por ejemplo. Esto significa que el valor de opt establecido en la petición es igual a imagen, y cuando el servlet vea su valor hará una tarea específica).  
+
+```java
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    String opt = request.getParameter("opt");
+```
+Una vez se ha guardado el valor del parámetro enviado, el servlet ha sido programado para que pueda atender solo dos tipos de peticiones, cada una con un valor de `opt` concreto. Para comprobar si cumplen el valor, basta con hacer una comparación en un `if`. En caso de que se cunmpla, tiene que realizar la tarea programada para ese valor. La primera opción es enviar la imagen del usuario registrado (esta petición la realizan tanto alumnos como profesores).
+
+```java
+    String dni = request.getRemoteUser();
+    if(opt.equals("imagen")) {
+        JSONObject res = new JSONObject();
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String carpeta = getServletContext().getInitParameter("Directorio_imagenes");
+        String img =null;
+        try(BufferedReader br = new BufferedReader(new FileReader(carpeta+"/"+dni+".pngb64")))
+        {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            img = sb.toString();
+            br.close();
+            res.put("img", img);
+        }catch (IOException e) 
+        {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Imagen no encontrada\"}");
+        }
+        out.write(res.toString());
+        out.close();
+    }
+```
+
+La segunda petición que se le puede hacer al servlet, obtiene los alumnos (con datos completos, nota e imagen) de cada asignatura que imparte el profesor. Por tanto, no tiene que estar al alcance de ambos usuarios, solo para profesor. Para ello, previamente a contestar la petición se verifica que el usuario no sea un alumno. Aunque realmente gracias al header `Authorization` de la petición AJAX, si el alumno introdujera la url correcta, no tendría acceso a realizar esta peticón. Pero se ha implementado, porque en el caso de que conociera tanto la url como el header de la petición, y ejecutara la petición en la consola, le respondería sin problemas (aunque la respuesta seria un array vacio ya que un alumno no imparte clase). Por ello se ha decidido implementar esta comprobación.
+
+```java
+    if(opt.equals("asignatura")){
+        //verificar que no es alumno
+        if(request.isUserInRole("rolalu")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Acceso denegado\"}");
+            return;
+        }  
+```
+
+Una vez verificado que el usuario es un profesor, se recuperan los datos del profesor y se solicitan las asignaturas que imparte. 
+
+```java
+        URL urlasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/profesores/"+dni+"/asignaturas?key="+key);
+        HttpURLConnection conasg = (HttpURLConnection) urlasg.openConnection();
+        for (String cookie: cookies) {
+                conasg.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+        }
+        conasg.setDoOutput(true);
+        conasg.setRequestMethod("GET");
+        conasg.setRequestProperty("accept", "application/json");
+        //respuesta del server
+        if(conasg.getResponseCode() == 200) {
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(conasg.getInputStream()))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                
+                respuesta = sb.toString();
+                br.close();
+                asignaturas = new JSONArray(respuesta);  
+            } 
+        }else {response.sendRedirect(request.getContextPath() + "/"); return;}
+```
+Al obtener todas las asignaturas que en las que imparte el profesor, se obtienen los alumnos de cada asignatura. Para obtener los datos completos, primero hay que realizar una consulta a la BD sobre los alumnos que están matriculados en esa asignatura y posteriormente, buscar al alumno por dni, también en la BD. Para la imagen, basta con buscar en el directorio `/home/user/tomcat/webapps/NOL-G2/imgs` con el dni del usuario, ya que las imágenes estan asociadas al dni (la imagen se llama dni_del_ususario.pngb64). Para guardar la información por alumno, se crea un JSONObject llamado `AlumnoEnt`. Este contiene todos los datos del alumno, nota y su imágen. Este JSONObject se guarda en el JSONArray `resA`, que posteriormente se enviará como respuesta. El obtener los datos de los todos los alumnos de la asignatura "_X_", se realizara tantas veces como asignaturas tenga el profesor. 
+
+```java
+        for(int a = 0; a < asignaturas.length(); a++){
+            String acronimo = asignaturas.getJSONObject(a).getString("acronimo");
+            //conseguimos alumnos de la asignatura
+            URL urlalu = new URL("http://"+request.getServerName()+":9090/CentroEducativo/asignaturas/"+acronimo+"/alumnos?key="+key);
+            HttpURLConnection conalu = (HttpURLConnection) urlalu.openConnection();
+            for (String cookie: cookies) {
+                conalu.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+            }
+            conalu.setDoOutput(true);
+            conalu.setRequestMethod("GET");
+            conalu.setRequestProperty("accept", "application/json");
+            //respuesta del servlet
+            if(conalu.getResponseCode() == 200) {
+                try(BufferedReader br2 = new BufferedReader(new InputStreamReader(conalu.getInputStream()))) {
+                    StringBuilder sb2 = new StringBuilder();
+                    String line2;
+                    while ((line2 = br2.readLine()) != null) {
+                        sb2.append(line2);
+                    }
+                    respuesta = sb2.toString();
+                    br2.close();
+                    alumno = new JSONArray(respuesta); //datos de los alumnos y nota
+                    //out.write(alumno.toString());
+                }
+            }
+            //conseguimos nombre de los alumnos
+            for(int i = 0; i < alumno.length(); i++)
+            {
+                String DNI = alumno.getJSONObject(i).getString("alumno");
+                URL nomalu = new URL("http://"+request.getServerName()+":9090/CentroEducativo/alumnos/"+DNI+"?key="+key);
+                HttpURLConnection connomalu = (HttpURLConnection) nomalu.openConnection();
+                for (String cookie: cookies) {
+                    connomalu.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+                }
+                connomalu.setDoOutput(true);
+                connomalu.setRequestMethod("GET");
+                connomalu.setRequestProperty("accept", "application/json");
+                
+                //respuesta del servlet
+                if(connomalu.getResponseCode() == 200) {
+                    try(BufferedReader br2 = new BufferedReader(new InputStreamReader(connomalu.getInputStream()))) {
+                        StringBuilder sb2 = new StringBuilder();
+                        String line2;
+                        while ((line2 = br2.readLine()) != null) {
+                            sb2.append(line2);
+                        }
+                        respuesta = sb2.toString();
+                        br2.close();
+                        alumnoEnt = new JSONObject(respuesta); //datos de los alumnos con nombre
+                        for(int j =0; j<alumno.length();j++)
+                        {
+                            if(alumnoEnt.get("dni").equals(alumno.getJSONObject(j).getString("alumno")))
+                            {
+                                alumnoEnt.put("nota",alumno.getJSONObject(j).getString("nota"));
+                                alumnoEnt.put("acronimo", acronimo);
+                                String carpeta = getServletContext().getInitParameter("Directorio_imagenes");
+                                String img =null;
+                                try(BufferedReader br = new BufferedReader(new FileReader(carpeta+"/"+alumnoEnt.get("dni")+".pngb64")))
+                                {
+                                    StringBuilder sb = new StringBuilder();
+                                    String line;
+                                    while ((line = br.readLine()) != null) {
+                                        sb.append(line);
+                                    }
+                                    img = sb.toString();
+                                    br.close();
+                                    alumnoEnt.put("img", img);
+                                }catch (IOException e) 
+                                {
+                                    alumnoEnt.put("img", "imagen no encontrada");
+                                }
+                            }
+                        }
+                        resA.put(alumnoEnt);
+                    }
+                }
+            }
+        }   
+```
+
+Finalmente, se envia `resA` para que en la página Profesor.html, sea procesado.
+
+```java
+    out.write(resA.toString());
+    }
+}   
+```
+
 ### 4.4.3.6. PublicarNotas.java
 ### 4.4.3.7. FinalizarSesion.java
 ### 4.4.3.8. Authorized.java
