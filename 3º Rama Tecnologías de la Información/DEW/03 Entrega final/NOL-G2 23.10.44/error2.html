@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOL-G2: Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Fondo gris claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+     .error-message {
+            font-size: 24px;
+            color: #333;
+            animation: changeColor 2s infinite, sizeChange 2s infinite; /* Aplicar ambas animaciones */
+        }
+     .cat-image {
+            display: block;
+            margin: 20px auto;
+            max-width: 80%;
+            height: auto;
+            animation: spin 1.5s linear infinite; /* Animación de rotación */
+        }
+       @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); } /* Rotación completa */
+        }
+       @keyframes changeColor {
+            0%, 100% { color: #ff0000; } /* Rojo */
+            50% { color: #ffff00; } /* Amarillo */
+        }
+       @keyframes sizeChange {
+            0%, 100% { transform: scale(1); } /* Tamaño original */
+            50% { transform: scale(1.5); } /* Tamaño grande */
+        }
+    </style>
+    <script>
+	    setTimeout(()=>{
+	    	window.history.back()
+	    }, 4000)
+    </script>
+</head>
+<body>
+    <div class="error-message" style="margin-left: 0px; top:20%">
+        ¿Qué buscas cotilla?
+    </div>
+    <div style="margin-top:50px">
+        <img src="https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg" alt="Un gato relajado" class="cat-image">
+    </div>
+</body>
+</html>
