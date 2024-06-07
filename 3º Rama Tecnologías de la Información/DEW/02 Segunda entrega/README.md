@@ -544,7 +544,7 @@ Con la información del alumno y sus asignaturas ya obtenida, el servlet procede
 		String finalu = Alutem.replace("{{nomalu}}", dyn);
 ```
 
-Una vez que se ha guardado la primera modificación en `**finalu**`;  **`dynasg`**  almacenará el HTML del acordeón de asignaturas del alumno. Luego, entra en un bucle que itera sobre cada asignatura en el **`JSONArray`** **`asignaturas`**. Para cada asignatura, se construye una URL específica que apunta al servicio **`CentroEducativo`** del servidor, incluyendo el identificador de la asignatura y una clave de autenticación. 
+Una vez que se ha guardado la primera modificación en `**finalu**`;  **`dynasg`**  almacenará el HTML del acordeón de asignaturas del alumno. Luego, entra en un bucle que itera sobre cada asignatura en el **`JSONArray asignaturas`**. Para cada asignatura, se construye una URL específica que apunta al servicio **`CentroEducativo`** del servidor, incluyendo el identificador de la asignatura y una clave de autenticación. 
 
 Se abre una conexión HTTP a esta URL y se configuran las propiedades de la solicitud, incluyendo las cookies de autenticación y el método **`GET`**, especificando que se espera una respuesta en formato JSON. La respuesta del servidor se lee utilizando un **`BufferedReader`** y se procesa para obtener un objeto JSON con los detalles de la asignatura. También se extrae la calificación de la asignatura, asignando "Sin calificar" si está vacía.
 
@@ -642,38 +642,38 @@ Una vez se ha obtenido toda la información necesaria (las notas, la imagen, los
 
 ```java
 protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		/*
-		más codigo aqui
-		*/
-		String finalu = Plantillatem.replace("{{nombre}}", dyn);
-		/*
-		más codigo aqui
-		*/
-		finalu = finalu.replace("{{dni}}", request.getRemoteUser());
-		/*
-		más codigo aqui
-		*/
-		//aqui si la ultima peticion ha respondido bien (ha contestado 200 OK), empieza a rellenar la TABLA
-		if(connomasg.getResponseCode()==200){
-				try(BufferedReader br = new BufferedReader(new InputStreamReader(connomasg.getInputStream()))) {
-						String r = "";
-						String resLine = null;
-						while ((resLine = br.readLine()) != null) {
-								r += resLine.trim();
-						}
-						String nota = asignaturas.getJSONObject(i).getString("nota");
-						if(nota == "") nota = "Sin calificar";
-						asg = new JSONObject(r);
-						dynasg += "<tr><td>"+asignaturas.getJSONObject(i).getString("asignatura")+"</td><td>"+asg.getString("nombre")+"</td><td>"+nota+"</td></tr>\n";
-				}
-		}else{response.sendRedirect(request.getContextPath()+"/"); return;}
-		finalu = finalu.replace("{{asg}}", dynasg);
-		/*
-		Obtencion de fechaf (sección de codigo anterior)
-		*/
-		finalu = finalu.replace("{{fecha}}", fechaf);
-		finalu = finalu.replace("{{imagen}}", "<img alt=\"fotoalumno\" src=\"./imgs/"+dni+".png\" width=\"92\" height=\"92\" style=\"border:2px solid black\">");
-		out.print(finalu);
+	/*
+	más codigo aqui
+	*/
+	String finalu = Plantillatem.replace("{{nombre}}", dyn);
+	/*
+	más codigo aqui
+	*/
+	finalu = finalu.replace("{{dni}}", request.getRemoteUser());
+	/*
+	más codigo aqui
+	*/
+	//aqui si la ultima peticion ha respondido bien (ha contestado 200 OK), empieza a rellenar la TABLA
+	if(connomasg.getResponseCode()==200){
+			try(BufferedReader br = new BufferedReader(new InputStreamReader(connomasg.getInputStream()))) {
+					String r = "";
+					String resLine = null;
+					while ((resLine = br.readLine()) != null) {
+							r += resLine.trim();
+					}
+					String nota = asignaturas.getJSONObject(i).getString("nota");
+					if(nota == "") nota = "Sin calificar";
+					asg = new JSONObject(r);
+					dynasg += "<tr><td>"+asignaturas.getJSONObject(i).getString("asignatura")+"</td><td>"+asg.getString("nombre")+"</td><td>"+nota+"</td></tr>\n";
+			}
+	}else{response.sendRedirect(request.getContextPath()+"/"); return;}
+	finalu = finalu.replace("{{asg}}", dynasg);
+	/*
+	Obtencion de fechaf (sección de codigo anterior)
+	*/
+	finalu = finalu.replace("{{fecha}}", fechaf);
+	finalu = finalu.replace("{{imagen}}", "<img alt=\"fotoalumno\" src=\"./imgs/"+dni+".png\" width=\"92\" height=\"92\" style=\"border:2px solid black\">");
+	out.print(finalu);
 }
 ```
 

@@ -1096,7 +1096,208 @@ La respuesta de CentroEducativo es un array de objetos JSON que contiene todos l
 Para construir la página, se lee previamente donde se encuentra la plantilla (`WEB-INF/Profesor.html`) y se convierte a `String`. Posteriormente, se reescribe el primer marcador con el nombre del profesor y se guarda la primera modificación de la página en la variable `finalu`. Seguido de esto, se realiza un bucle en el que se va a generar un contenedor (con su respectivo diseño y elementos internos) al que se le asignará una funcionalidad posteriormente (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml)), por cada asignatura que tiene el/la  profesor/a. Esto se va a estar guardando en la variable `dynasg`, que será la que reemplaze el marcador `{{asg}}` una vez se acabe el bucle. Por lo que al final, la variable `finalu` se habrá reescrito 2 veces, una por marcador. Una vez se ha reescrito, se escribe la página.
 
 ### 4.4.3.3. Alumno.java
+
+Este servlet gestiona la generación dinámica de la página `alumno.html` para mostrar información específica sobre un alumno y sus asignaturas (al igual que profesor.java con prifesir.html).  
+
+En cuanto a la implementación, es bastante sencilla. Se imaplementa el método `doGet(request, response)` donde se realiza a su vez una petición a CentroEducativo para obtener los datos de las asignaturas en las que esta matriculado ese alumno, con lo que posteriormente generará un desplegable con la biblioteca Bootstrap donde se encuentran las notas y sus respectivas calificaciones. 
+
+Para que todo esto funcione, hay que hacer una serie de comprobaciones, como verificar que el usuario es un alumno (verificar su rol). En caso de no ser así, le manda automáticamente a `index.html`. Esto se hace por si un usuario registrado como profesor pone en el buscador `/alumno` e intenta acceder a este sitio. De esta manera, no se le concede el paso.
+
+```java
+//cabecera del método
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    if(request.isUserInRole("rolpro")) {
+            response.sendRedirect(request.getContextPath() + "/");
+            return;
+    }
+```
+
+Se usa return para que deje de ejecutar este servlet y no produzca errores futuros. 
+
+Una vez pasado este filtro inicial de seguridad, se obtiene la sesión HTTP actual y se extraen dos atributos de la sesión: "key" (una clave posiblemente utilizada para autenticación o autorización) y "cookies" (una lista de cookies almacenadas en la sesión). También se obtiene el nombre de usuario remoto (DNI) del usuario autenticado. Con estos datos, el servlet realiza una petición `GET` a CentroEducativo para obtener información del alumno utilizando el DNI y la clave. Se abre una conexión HTTP, se establecen las propiedades necesarias (como las cookies y el tipo de contenido aceptado), y si la respuesta es `200_OK` se lee la respuesta JSON del servicio, que se convierte en un objeto JSON para su procesamiento posterior. En caso de una respuesta distinta, se redirige al inicio y se detiene la ejecución de este servlet para evitar errores futuros. 
+
+```java
+//Recuperar sesion actual
+    HttpSession session = request.getSession();
+    String key = (String) session.getAttribute("key");
+    String dni = request.getRemoteUser();
+    JSONObject alumno = null;
+    JSONArray asignaturas = null;
+    List<String> cookies = (List<String>) session.getAttribute("cookies");
+
+    //preparar la peticion get a CentroEducativo
+    URL urlusr = new URL("http://"+request.getServerName()+":9090/CentroEducativo/alumnos/"+dni+"?key="+key);
+    HttpURLConnection conusr = (HttpURLConnection) urlusr.openConnection();
+    for (String cookie: cookies) {
+            conusr.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+    }
+    conusr.setDoOutput(true);
+    conusr.setRequestMethod("GET");
+    conusr.setRequestProperty("accept", "application/json");
+
+    //tratar codigo de respuesta y su posterior lectura
+    if(200==conasg.getResponseCode()){
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(conusr.getInputStream()))) {
+                    String r = "";
+                    String resLine = null;
+                    while ((resLine = br.readLine()) != null) {
+                            r += resLine.trim();
+                    }
+                    alumno = new JSONObject(r);
+            }
+    }else{response.sendRedirect(request.getContextPath()+"/"); return;}
+```
+
+Luego, el servlet realiza una segunda petición `GET` a CentroEducativo para obtener una lista de asignaturas asociadas al alumno. Esta solicitud también utiliza el DNI del alumno y la clave de autenticación, y se configura de manera similar a la anterior, incluyendo las cookies necesarias en las propiedades de la solicitud. La respuesta de esta segunda solicitud, que es un JSON Array, se procesa y se convierte en un `JSONArray` que contiene las asignaturas del alumno.
+
+```java
+    //CONSEGUIR ASIGNATURAS POR DNI
+    URL urlasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/alumnos/"+dni+"/asignaturas?key="+key);
+    HttpURLConnection conasg = (HttpURLConnection) urlasg.openConnection();
+    for (String cookie: cookies) {
+            conasg.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+    }
+    conasg.setDoOutput(true);
+    conasg.setRequestMethod("GET");
+    conasg.setRequestProperty("accept", "application/json");
+
+    //tratar respuesta
+    if(200==conasg.getResponseCode()){
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(conasg.getInputStream()))) {
+                    String r = "";
+                    String resLine = null;
+                    while ((resLine = br.readLine()) != null) {
+                            r += resLine.trim();
+                    }
+                    asignaturas = new JSONArray(r);
+            }
+    }else{response.sendRedirect(request.getContextPath()+"/"); return;}
+```
+
+Con la información del alumno y sus asignaturas ya obtenida, el servlet procede a construir una página *HTML* dinámica. La plantilla HTML se lee desde un archivo ubicado en el servidor (`/WEB-INF/Alumno.html`). El nombre completo del alumno (nombre y apellidos) se inserta en la plantilla reemplazando un marcador (`{{nomalu}}`), mediante el método `replace(”nombre_marcador_en_el_html”, variable_donde_esta_el_dato_a_introducir)`, a la variable donde se ha guardado previamente la pagina web de *Alumno.html* (`Alumnohtml`). Este nuevo cambio se almacena en la variable `finalu`; en la que aun falta modificar el marcador `{{asg}}`, que se encarga de generar los acordeones de las asignaturas, y `{{imagen}}` que introduce la imagen del alumno, que esta ubicada en el mismo directorio pero dentro de una carpeta llamada *imgs*.
+
+```java
+    //CONSTRUCCIÓN PÁGINA HTML ALUMNO (NOMBRE Y ACORDEÓN ASIGNATURAS)
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    String Alumnohtml = getServletContext().getRealPath("/WEB-INF/Alumno.html");
+    String Alutem = new String(Files.readAllBytes(Paths.get(Alumnohtml)), "UTF-8");
+    
+    String dyn = alumno.getString("nombre") +" "+ alumno.getString("apellidos");
+    String finalu = Alutem.replace("{{nomalu}}", dyn);
+```
+
+Una vez que se ha guardado la primera modificación en `finalu`;  `dynasg`  almacenará el HTML del acordeón de asignaturas del alumno. Luego, entra en un bucle que itera sobre cada asignatura en el `JSONArray asignaturas`. Para cada asignatura, se construye una URL específica que apunta al servicio `CentroEducativo` del servidor, incluyendo el identificador de la asignatura y una clave de autenticación. 
+
+Se abre una conexión HTTP a esta URL y se configuran las propiedades de la solicitud, incluyendo las cookies de autenticación y el método `GET`, especificando que se espera una respuesta en formato JSON. La respuesta del servidor se lee utilizando un `BufferedReader` y se procesa para obtener un objeto JSON con los detalles de la asignatura. También se extrae la calificación de la asignatura, asignando "Sin calificar" si está vacía.
+
+Con los datos obtenidos, se construye dinámicamente un segmento HTML para un ítem del acordeón, que incluye el nombre y la calificación de la asignatura. Este HTML se acumula en la cadena `dynasg`. Tras procesar todas las asignaturas, el marcador `{{asg}}` es remplazado en el html ya reescrito antes (`finalu`), otra vez por el método replace(). Acto seguido, se vuelve a utilizar este método para introducir también la imagen del alumno, reescribiendo `{{imagen}}` por el string `<img alt=\"fotoalumno\" src=\"./imgs/"+dni+".png\" width=\"92\" height=\"92\" style=\"border-radius:50%\">`. 
+
+Finalmente, el HTML completo, con los datos de las asignaturas integrados, se envía al cliente mediante `PrintWriter`, permitiendo que el navegador del usuario muestre la página personalizada con la información del alumno y sus asignaturas en un formato interactivo.
+
+```java
+    String dynasg = "";
+    for(int i=0;i<asignaturas.length();i++) {
+            JSONObject asg=null;
+            URL urlnomasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/asignaturas/"+asignaturas.getJSONObject(i).getString("asignatura")+"?key="+key);
+        HttpURLConnection connomasg = (HttpURLConnection) urlnomasg.openConnection();
+            
+        for (String cookie: cookies) {
+                connomasg.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+            } 
+        connomasg.setDoOutput(true);
+        connomasg.setRequestMethod("GET");
+        connomasg.setRequestProperty("accept", "application/json");
+        if(connomasg.getResponseCode()==200){
+                try(BufferedReader br = new BufferedReader(new InputStreamReader(connomasg.getInputStream()))) {
+                String r = "";
+                String resLine = null;
+                while ((resLine = br.readLine()) != null) {
+                        r += resLine.trim();
+                }
+                String nota = asignaturas.getJSONObject(i).getString("nota");
+                if(nota == "") nota = "Sin calificar";
+                asg = new JSONObject(r);
+                dynasg += "<div class=\"accordion-item\">\n"
+                        + "            <h2 class=\"accordion-header\" id=\"heading"+i+"\">\n"
+                        + "                <button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse"+i+"\" aria-expanded=\"false\" aria-controls=\"collapse"+i+"\">\n"
+                        + ""+asignaturas.getJSONObject(i).get("asignatura") +" - "+ asg.getString("nombre")+"\n"
+                        + "                </button>\n"
+                        + "            </h2>\n"
+                        + "            <div id=\"collapse"+i+"\" class=\"accordion-collapse collapse\" aria-labelledby=\"heading"+i+"\" data-bs-parent=\"#accordionExample\">\n"
+                        + "                <div class=\"accordion-body\">\n"
+                        + "                    <p>Calificación de la asignatura: "+nota+"</p>\n"
+                        + "                </div>\n"
+                        + "            </div>\n"
+                        + " </div>\n";
+                }
+        }else{response.sendRedirect(request.getContextPath()+"/"); return;}
+    }
+    finalu = finalu.replace("{{asg}}", dynasg);
+    finalu = finalu.replace("{{imagen}}", "<img alt=\"fotoalumno\" src=\"./imgs/"+dni+".png\" width=\"92\" height=\"92\" style=\"border-radius:50%\">");
+    out.print(finalu);
+}
+```
+
 ### 4.4.3.4. Imprimir.java
+
+Este servlet se ha creado para manejar la creación dinámica de una pagina html, PlantillaPeticion.html (Véase [4.4.2.6. PlantillaPeticion.html](#4426-plantillapeticionhtml)). Este servlet se encarga, al igual que Alumno.java (Véase [4.4.3.3](#4433-alumnojava)) en diseñar la pagina para que obtenga un estilo parecido a como si fuera un pdf y que se pueda imprimir en caso de ser necesario. 
+
+La implementación del código es muy similar a la anterior, ya que ambas se encargan de la creación dinámica de la pagina web, en este caso `PlantillaPeticion.html`. Vuelve a hacer peticiones a CentroEducativo mediante el método GET pero esta vez, genera una tabla con todas las asignaturas; con sus debidas notas y acrónimos, añade la foto del usuario y pone la fecha del día que ha sido expedido el boletín de las notas.
+
+Toda la parte de las peticiones GET, se considera que es muy similar y por ende no se va a hacer hincapié en este apartado, ya que bastaría con mirar el anterior donde se explica como se cogen todos los datos y si cumple con los requisitos de seguridad. 
+
+Algo que se considera que cabe destacar es la obtención del formato de la fecha, ya que esto es nuevo en el acta. Para conseguir el formato deseado (`$dic_del_mes de $nombre_mes de $año`) se ha utilizado el siguiente codigo:
+
+```java
+Date fecha = new Date();
+SimpleDateFormat formato = new SimpleDateFormat("d 'de' MMMM 'de' yyyy", new DateFormatSymbols(Locale.forLanguageTag("es")));
+String fechaf = formato.format(fecha);
+```
+
+Una vez se ha obtenido toda la información necesaria (las notas, la imagen, los nombres y acrónimos de las asignaturas, el nombre y el apellido del usuario, y la fecha del día actual) para poder generar la pagina con el formato de impresión, es cuando empiezan los cambios, más allá de la propia estructura de la pagina en si con la de alumno. Al igual que en el anterior servlet, se reemplazan los marcadores en la plantilla con los datos dinámicos obtenidos anteriormente, como el nombre del alumno, el DNI, las asignaturas y la fecha actual en español.
+
+```java
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    /*
+    más codigo aqui
+    */
+    String finalu = Plantillatem.replace("{{nombre}}", dyn);
+    /*
+    más codigo aqui
+    */
+    finalu = finalu.replace("{{dni}}", request.getRemoteUser());
+    /*
+    más codigo aqui
+    */
+    //aqui si la ultima peticion ha respondido bien (ha contestado 200 OK), empieza a rellenar la TABLA
+    if(connomasg.getResponseCode()==200){
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(connomasg.getInputStream()))) {
+                    String r = "";
+                    String resLine = null;
+                    while ((resLine = br.readLine()) != null) {
+                            r += resLine.trim();
+                    }
+                    String nota = asignaturas.getJSONObject(i).getString("nota");
+                    if(nota == "") nota = "Sin calificar";
+                    asg = new JSONObject(r);
+                    dynasg += "<tr><td>"+asignaturas.getJSONObject(i).getString("asignatura")+"</td><td>"+asg.getString("nombre")+"</td><td>"+nota+"</td></tr>\n";
+            }
+    }else{response.sendRedirect(request.getContextPath()+"/"); return;}
+    finalu = finalu.replace("{{asg}}", dynasg);
+    /*
+    Obtencion de fechaf (sección de codigo anterior)
+    */
+    finalu = finalu.replace("{{fecha}}", fechaf);
+    finalu = finalu.replace("{{imagen}}", "<img alt=\"fotoalumno\" src=\"./imgs/"+dni+".png\" width=\"92\" height=\"92\" style=\"border:2px solid black\">");
+    out.print(finalu);
+}
+```
+
+Como se puede observar en el `try`, ahí es donde esta la diferencia principal de un servlet a otro, en este se está insertando filas con el contenido requerido a una tabla que previamente ha sido creado las cabeceras de las columnas en la PlantillaPeticion.html. 
+
+Una vez la página ha sido creada, si el usuario quisiera imprimírsela, tendría una vista similar a la de un pdf a la hora de seleccionar la opción imprimir boletín.
+
 ### 4.4.3.5. GestionDinamica.java
 ### 4.4.3.6. PublicarNotas.java
 ### 4.4.3.7. FinalizarSesion.java
