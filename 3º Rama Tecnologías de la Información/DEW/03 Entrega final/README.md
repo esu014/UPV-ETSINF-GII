@@ -1856,6 +1856,27 @@ En caso de que sea un **alumno**:
 
 2. Probar a hacer la petición por consola: no va a poder acceder ni realizar cambios porque no está autorizado a acceder a este recurso.
 
+Para realizar la prueba, tanto esta como en el caso de profesor, se ha utilizado el siguiente código JavaScript:
+
+```javascript
+$.ajax({
+	url: './PublicarNotas', 
+	type: 'POST',
+	datatype: 'json', 
+        async:true,
+	headers: {
+	         'Authorization': 'true'
+	},
+    data: 'acronimo=IAP&nota=3&dni=12345678W',
+    success: function(data){
+            alert("Nota publicada con éxito.")
+    },
+    error: function(err){
+            alert("Error: " + err.readyState)
+    }
+})
+```
+
 ![Publicar una nota siendo un alumno](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnoTerminal2.png)
 
 ![Error al intentar poner una nota siendo un alumno](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnoTerminal1.png)
