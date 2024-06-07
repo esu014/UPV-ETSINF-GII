@@ -17,10 +17,6 @@
     <param-value>/home/user/Escritorio/NOLG2Access.log</param-value>
   </context-param>
   <context-param>
-    <param-name>rutaArchivo2</param-name>
-    <param-value>/home/user/Escritorio/NOLG2.log</param-value>
-  </context-param>
-  <context-param>
     <param-name>Directorio_imagenes</param-name>
     <param-value>/home/user/tomcat/webapps/NOL-G2/imgs</param-value>
   </context-param>

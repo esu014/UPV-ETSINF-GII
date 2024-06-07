@@ -471,8 +471,8 @@ El primer fragmento de código es una petición AJAX en la que se solicita a un 
             $("#perfil").attr("src", "data:image/png;base64,"+data.img); 
         },
         error: function(jqXHR, textStatus, errorThrown) {
-        // Manejar errores de la solicitud
-        alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
+            // Manejar errores de la solicitud
+            alert('Error: ' + err.responseText);
         }
     })
 ```
@@ -516,7 +516,7 @@ El siguiente fragmento de código está relacionado con la obtención de los alu
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-        // Manejar errores de la solicitud
+            // Manejar errores de la solicitud
             alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
         }
     })
@@ -698,7 +698,7 @@ En caso de retroceder, la variación respecto al código de arriba es lo siguien
 ```javascript
     if(indice == 0)
     {
-        indice = alum[asignatura].length-1
+        indice = alum[asignatura].length
     }
     indice--
 ```
@@ -726,7 +726,6 @@ function nuevaNota(nota)
             data: 'acronimo='+alum[asignatura][indice].acronimo+'&nota='+nota+'&dni='+alum[asignatura][indice].dni,
             success: function(data){
                 alert("Nota de "+ alum[asignatura][indice].nombre + " "+alum[asignatura][indice].apellidos+ " publicada con éxito.")
-                
                 $('#nota').text(nota)
                 alum[asignatura][indice].nota = nota
                 // Selecciona la celda específica y modifica su contenido
@@ -1117,8 +1116,8 @@ Para que todo esto funcione, hay que hacer una serie de comprobaciones, como ver
 //cabecera del método
 protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     if(request.isUserInRole("rolpro")) {
-            response.sendRedirect(request.getContextPath() + "/");
-            return;
+        response.sendRedirect(request.getContextPath() + "/");
+        return;
     }
 ```
 
@@ -1127,7 +1126,7 @@ Se utiliza `return` para que deje de ejecutar este servlet y no produzca errores
 Una vez pasado este filtro inicial de seguridad, se obtiene la sesión HTTP actual y se extraen dos atributos de la sesión: "key" (una clave posiblemente utilizada para autenticación o autorización) y "cookies" (una lista de cookies almacenadas en la sesión). También se obtiene el nombre de usuario remoto (DNI) del usuario autenticado. Con estos datos, el servlet realiza una petición `GET` a CentroEducativo para obtener información del alumno utilizando el DNI y la clave. Se abre una conexión HTTP, se establecen las propiedades necesarias (como las cookies y el tipo de contenido aceptado), y si la respuesta es `200 OK`, se lee la respuesta JSON del servicio, que se convierte en un objeto JSON para su procesamiento posterior. En caso de una respuesta distinta, se redirige al inicio y se detiene la ejecución de este servlet para evitar errores futuros.
 
 ```java
-//Recuperar sesion actual
+    //Recuperar sesion actual
     HttpSession session = request.getSession();
     String key = (String) session.getAttribute("key");
     String dni = request.getRemoteUser();
@@ -1223,7 +1222,7 @@ Finalmente, el HTML completo, con los datos de las asignaturas integrados, se en
                 String r = "";
                 String resLine = null;
                 while ((resLine = br.readLine()) != null) {
-                        r += resLine.trim();
+                    r += resLine.trim();
                 }
                 String nota = asignaturas.getJSONObject(i).getString("nota");
                 if(nota == "") nota = "Sin calificar";
@@ -1367,6 +1366,22 @@ La segunda petición que se le puede hacer al servlet obtiene los alumnos (con d
 Una vez verificado que el usuario es un profesor, se recuperan los datos del profesor y se solicitan las asignaturas que imparte. 
 
 ```java
+        //Recuperamos al profesor
+        HttpSession session = request.getSession();
+        String key = (String) session.getAttribute("key");
+        JSONArray asignaturas = null;
+        JSONArray alumno = new JSONArray();
+        JSONArray resA = new JSONArray();
+        JSONObject alumnoEnt =new JSONObject();
+        JSONArray mensaje = new JSONArray();
+        String respuesta;
+        List<String> cookies = (List<String>) session.getAttribute("cookies");
+        
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        //conseguimos asignatura del profesor
         URL urlasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/profesores/"+dni+"/asignaturas?key="+key);
         HttpURLConnection conasg = (HttpURLConnection) urlasg.openConnection();
         for (String cookie: cookies) {
@@ -1462,7 +1477,7 @@ Al obtener todas las asignaturas en las que imparte el profesor, se obtienen los
                                     alumnoEnt.put("img", img);
                                 }catch (IOException e) 
                                 {
-                                    alumnoEnt.put("img", "imagen no encontrada");
+                                    System.err.println(e);
                                 }
                             }
                         }
@@ -1476,7 +1491,7 @@ Al obtener todas las asignaturas en las que imparte el profesor, se obtienen los
 Finalmente, se envia `resA` para que en la página Profesor.html, sea procesado.
 
 ```java
-    out.write(resA.toString());
+        out.write(resA.toString());
     }
 }   
 ```
