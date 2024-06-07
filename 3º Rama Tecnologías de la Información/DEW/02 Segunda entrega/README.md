@@ -254,7 +254,7 @@ Código de tomcat-user.xml:
 <user username="37264096W" password="123456" roles="rolalu"/>
 ```
 
-En cuanto el web.xml, se han tenido que realizar bastantes modificaciones, para añadir los servlets, las restricciones de seguridad, los roles admitidos etc (revisar esto). Ademas de las configuraciones basicas, que se hacen en todo servlet por defecto, se destaca en el siguiente código lo que se ha cambiado más importante:
+En cuanto el web.xml, se han tenido que realizar bastantes modificaciones, para añadir los servlets, las restricciones de seguridad, los roles admitidos etc. Ademas de las configuraciones básicas, que se hacen en todo servlet por defecto, se destaca en el siguiente código lo que se ha cambiado más importante:
 
 ```xml
 <security-constraint>

@@ -41,6 +41,7 @@
                 6. [PublicarNotas.java](#4436-publicarnotasjava) 
                 7. [FinalizarSesion.java](#4437-finalizarsesionjava) 
                 8. [Authorized.java](#4438-authorizedjava) 
+            4. [Archivo web.xml](#444-archivo-webxml)
                     
 # 1. Introducción
 Este trabajo sobre NotasOnLine, del curso 2023-2024, ha sido realizado por el grupo TI11-G2, cuyos miembros del equipo son Pau Amorós Córdoba, Carlos Cebellán Ferriz, Jorge Díez Forcada, Giorgi Dolidze, Segundo Gomez Lillo, Pau Perez Marco y Enrique Sopeña Urbano.
@@ -239,7 +240,7 @@ Además esta página, hace una petición `AJAX` a un servlet llamado `GestionDin
 ### 4.2.3.1. Imprimir
 El usuario alumno también tiene que poder imprimir sus notas, como si fuera un boletín. Para ello, se ha creado un servlet, llamado `Imprimir.java`, que se encarga de formatear la página para estructurarla de manera que se pueda imprimir. Para no construir la página desde cero, se sigue le patrón que se emplea en `alumno.html` y `profesor.html`. Es decir, se emplea una plantilla HTML, en este caso, se llama `PlantillaPeticion.html`, y se reescribe mediante el servlet mencionado anteriomente. Para reescribir la página con los datos personalizados, es necesario hacer otra petición a CentroEducativo para obtener la información requerida. 
 
-![Interfaz de Imprimir](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/InterfazImprimir.png) (intentar poner lo de la firma)
+![Interfaz de Imprimir](https://personales.alumno.upv.es/esopurb/dew/imgs/interfaces/InterfazImprimir2.png)
 
 ### 4.3.3. Profesor
 En cambio, cuando el usuario que se ha registrado es un profesor, `Log3.java` redigirá al usuario a `Profesor.java`. Este servlet hace lo mismo que `Alumno.java`, pero son diferentes ya que cada uno construye la página de una manera distinta, por lo que el diseño de la interfaz no es igual debido a que tienen funciones distintas (tienen un rol distinto). 
@@ -496,7 +497,7 @@ El primer fragmento de código es una petición AJAX en la que se solicita a un 
         },
         error: function(jqXHR, textStatus, errorThrown) {
         // Manejar errores de la solicitud
-            alert('Error:', textStatus, errorThrown);
+        alert('Error: ' + textStatus +" - " + errorThrown + '\n' + jqXHR.responseText);
         }
     })
 ```
@@ -860,6 +861,13 @@ Este archivo HTML es la página de Alumno formateada con estilo de impresión. N
     </tbody>
 </table>
 <p class=bolivia>{{fecha}}</p>
+<footer>
+	    <div class="firma">
+	    	<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Apache_Tomcat_logo.svg/2560px-Apache_Tomcat_logo.svg.png">
+	    	<p>Firmado por el secretario</p>
+	    	<p>[Tomcat 9.0.41]</p>
+	    </div>
+    </footer>
 <div class="center-button">
     <button id="Boton" onclick="return imprimir()"> Imprimir Boletín</button>
 </div>
@@ -996,8 +1004,6 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
                 String salida = LocalDateTime.now().toString() +" "+ dni +" "+ req.getRemoteAddr() +" "+ req.getMethod() +"\n";
                 
                 try {
-                    
-                    
                     FileWriter pw = new FileWriter(new File(req.getServletContext().getInitParameter("rutaArchivo")),true);
                     BufferedWriter bw = new BufferedWriter(pw);
                     bw.write(salida);
@@ -1496,8 +1502,405 @@ Finalmente, se envia `resA` para que en la página Profesor.html, sea procesado.
 ```
 
 ### 4.4.3.6. PublicarNotas.java
+
+Como su nombre indica, este servlet se encarga de publicar las notas en la BD de CentroEducativo. Recibe una petición AJAX de `Profesor.html` (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml)) que contiene como parámetros la nota a introducir, el dni del alumno al que se le ha modificado la nota y la asignatura a la que pertenece. Se ha configurado el método `doPost(request, response)`desde el cual se realizará la petición `PUT` a CentroEducativo. Esto se ha realizado así ya que implementando el método doPut, generaba error.
+
+```java
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+```
+
+Este servlet, al igual que pasa en uno de los casos de `GestionDinamica.java` (Véase [4.4.3.5. GestionDinamica.java](#4435-gestiondinamicajava)), no puede ser accedido por alumnos. La diferencia frente al anterior servlet, es que un alumno no puede acceder de ninguna manera a este servlet (a diferencia del otro que si que tenia que acceder para coger la imagen del alumno). Para ello, en el archivo web.xml se ha añadido una clausula de restricción por rol a este servlet (Véase [4.4.4. Archivo web.xml](#444-archivo-webxml), _security-constraint_). Adicionalmente también hay que comprobar si el profesor que está introduciendo la nota en esa asignatura, imparte clase en ella, porque no debe poder modificar notas en las que no es profesor. Para ello se ha realizado lo siguiente:
+
+```java
+    //Recuperamos al profesor
+    HttpSession session = request.getSession();
+    String key = (String) session.getAttribute("key");
+    String dniProf = request.getRemoteUser();
+    List<String> cookies = (List<String>) session.getAttribute("cookies");
+
+    //coger valores de la peticion
+    String dniAlu = request.getParameter("dni");
+    String acronimo = request.getParameter("acronimo");
+    String notaAlu = request.getParameter("nota");
+    String mensaje = "\"" + notaAlu + "\"";
+    
+    //si el usuario es profesor hay que verificar si da esa asignatura
+    if(request.isUserInRole("rolpro")) {
+        //conseguir las asignaturas del profe que realiza la petición
+        JSONArray asignaturas;
+        boolean asigProfe = false;
+        URL urlasg = new URL("http://"+request.getServerName()+":9090/CentroEducativo/profesores/"+dniProf+"/asignaturas?key="+key);
+        HttpURLConnection conasg = (HttpURLConnection) urlasg.openConnection();
+        for (String cookie: cookies) {
+                conasg.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+        }
+        conasg.setDoOutput(true);
+        conasg.setRequestMethod("GET");
+        conasg.setRequestProperty("accept", "application/json");
+        //respuesta del server
+        if(conasg.getResponseCode() == 200) {
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(conasg.getInputStream()))) {
+                    String r = "";
+                    String resLine = null;
+                    while ((resLine = br.readLine()) != null) {
+                    r += resLine.trim();
+                    }
+                    asignaturas = new JSONArray(r);
+                }
+        } else {response.sendRedirect(request.getContextPath() + "/"); return;}
+        
+        //se mira que el acronimo de la asignatura que se ha pasado corresponde con una asignatura que imparte el profesor
+        for(int i = 0; i < asignaturas.length(); i++)
+        {
+            if(asignaturas.getJSONObject(i).getString("acronimo").equals(acronimo))
+            {
+                asigProfe = true;
+                break;
+            }
+        }
+        
+        //si la asignatura enviada no corresponde con ninguna del profe, no puede modificar las notas
+        if(!asigProfe) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Acceso denegado\"}");
+            return;
+        }
+    }
+```
+
+Una vez pasada la verificación se realiza la petición para la inserción de la nueva nota en la BD. Para ello se crea la conexión, se establecen los parámetros del envio y posteriormente se envia la nota nueva a CentroEducativo. Una vez se ha enviado, se trata la respuesta.
+
+```java
+    //creamos la conexion
+    URL urlusr = new URL("http://"+request.getServerName()+":9090/CentroEducativo/alumnos/"+dniAlu+"/asignaturas/"+acronimo+"?key="+key);
+    HttpURLConnection conusr = (HttpURLConnection) urlusr.openConnection();
+    for (String cookie: cookies) {
+        conusr.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+    }
+    conusr.setDoOutput(true);
+    conusr.setDoInput(true);
+    conusr.setRequestMethod("PUT");
+    conusr.setRequestProperty("Content-Type", "application/json");
+    conusr.setRequestProperty("accept", "text/plain");
+    
+    //manda la peticion
+    try (OutputStream os = conusr.getOutputStream()) {
+        byte[] input = mensaje.getBytes("utf-8");
+        os.write(input, 0, input.length);
+    } 
+    catch (Exception e) {}
+    
+    if(conusr.getResponseCode()==200)
+    {
+        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+    }
+    else
+    {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.getWriter().write(conusr.getResponseMessage());
+    }
+}
+```
+
 ### 4.4.3.7. FinalizarSesion.java
+
+Este servlet se encarga de finalizar la sesión para ambos tipos de usuarios. Su funcionamiento es sencillo. Cuando se pincha en el botón de "_Finalizar Sesión_" en cualquiera de las interfaces, se hace una petición al método `doGet(request, response)` que se encarga de recuperar la sesión del usuario, invalidarla y reedirigirlo a la pagina inicial, donde a continuación puede volver a iniciar sesión con el usuario que desée. 
+
+```java
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    session.invalidate();
+    response.sendRedirect(request.getContextPath() + "/");
+}
+```
+
 ### 4.4.3.8. Authorized.java
 
+Es el filtro de seguridad ya mencionado anteriormente en otros puntos de esta memoria (Véase [4.4.2.4. Profesor.html](#4424-profesorhtml) y [4.4.3.5. GestionDinamica.java](#4435-gestiondinamicajava)). Se encarga de verificar si las peticiones a distintos servlets estan autorizadas. Para ello, a la hora de hacer las distintas peticiones a los servlets, se añade a éstas un `header`, de nombre `Authrization` y de valor igual a `true`. El filtro verifica que esta cabecera existe y contiene ese valor. En caso contrario le muestra una página de error específica, que se ha definido en el archivo `web.xml` (Véase [4.4.4. Archivo web.xml](#444-archivo-webxml)). De esta manera, se protege la aplicación de intentos de consultar/modificar sin la debida autorización. Por ejemplo, si un usuario conoce la url con la que se envian los datos a `PublicarNotas.java`, cambia los valores de los atributos que se envian (nota, acronimo y dni), podría modificar la nota del alumno de la asignatura que se quisiera sin estar autorizado. Este filtro se encarga de que eso no pase.
+
+```java
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    // TODO Auto-generated method stub
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+    // Verifica el encabezado que ponemos en la peticion
+    String customHeader = httpRequest.getHeader("Authorization");
+
+    // Verifica el rol del usuario 
+    boolean isLoggedIn = httpRequest.getRemoteUser()!= null;
+    boolean isUserRoleValid = "true".equals(customHeader);
+
+    if (isLoggedIn && isUserRoleValid) {
+        chain.doFilter(request, response); // Permitir la solicitud
+    } else {
+        httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+    }
+}
+```
 
 ### 4.4.4. Archivo web.xml
+
+El archivo `web.xml` sirve como un mapa detallado que define la estructura, la configuración y la seguridad de la aplicación web. Al proporcionar una descripción exhaustiva de los componentes de la aplicación, desde los servlets hasta los filtros de seguridad, el `web.xml` actúa como el núcleo central que dirige y controla el comportamiento de la aplicación. 
+
+Se han configurado los siguientes parámetros:
+
+- **display-name**: Define el nombre que se mostrará para la aplicación web, en este caso, "NOL-G2".
+```xml
+<display-name>NOL-G2</display-name>
+```
+- **welcome-file-list**: Enumera los archivos de bienvenida que se utilizarán si no se especifica ningún recurso específico en la URL
+```xml
+<welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+</welcome-file-list>
+```
+- **session-config**: Configura el tiempo de espera de la sesión en segundos. En este caso, la sesión expirará después de 900 segundos (15 minutos) de inactividad.
+```xml
+<session-config>
+    <session-timeout>900</session-timeout>
+</session-config>
+```
+- **context-param**: Define parámetros de contexto que pueden ser utilizados por la aplicación. En este caso, se definen tres parámetros de contexto: "rutaArchivo", "rutaArchivo2", y "Directorio_imagenes", con sus respectivos valores.
+```xml
+<context-param>
+    <param-name>rutaArchivo</param-name>
+    <param-value>/home/user/Escritorio/NOLG2Access.log</param-value>
+</context-param>
+<context-param>
+    <param-name>rutaArchivo2</param-name>
+    <param-value>/home/user/Escritorio/NOLG2.log</param-value>
+</context-param>
+<context-param>
+    <param-name>Directorio_imagenes</param-name>
+    <param-value>/home/user/tomcat/webapps/NOL-G2/imgs</param-value>
+</context-param>
+```
+- **security-constraint**: Establece restricciones de seguridad para ciertos recursos web. Define qué roles de usuario tienen acceso a qué recursos y mediante qué métodos HTTP.
+```xml
+<security-constraint>
+    <web-resource-collection>
+      <web-resource-name>AccesoAlu</web-resource-name>
+      <url-pattern>/Alumno</url-pattern>
+      <http-method>GET</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>rolalu</role-name>
+      <role-name>rolpro</role-name>
+    </auth-constraint>
+</security-constraint>
+<security-constraint>
+    <web-resource-collection>
+      <web-resource-name>GestionDinamica</web-resource-name>
+      <url-pattern>/GestionDinamica</url-pattern>
+      <http-method>GET</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>rolpro</role-name>
+      <role-name>rolalu</role-name>
+    </auth-constraint>
+</security-constraint>
+<security-constraint>
+    <web-resource-collection>
+      <web-resource-name>AccesoProf</web-resource-name>
+      <url-pattern>/Profesor</url-pattern>
+      <http-method>GET</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>rolpro</role-name>
+      <role-name>rolalu</role-name>
+    </auth-constraint>
+</security-constraint>
+<security-constraint>
+    <web-resource-collection>
+      <web-resource-name>PublicarNotas</web-resource-name>
+      <url-pattern>/PublicarNotas</url-pattern>
+      <http-method>POST</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>rolpro</role-name>
+    </auth-constraint>
+</security-constraint>
+```
+- **login-config**: Configura el método de autenticación utilizado por la aplicación. En este caso, se utiliza el método "FORM" (formulario), y se especifican las páginas de inicio de sesión y de error.
+```xml
+<login-config>
+    <auth-method>FORM</auth-method>
+    <form-login-config>
+      <form-login-page>/login.html</form-login-page>
+      <form-error-page>/error.html</form-error-page>
+    </form-login-config>
+</login-config>
+```
+- **security-role**: Define los roles de seguridad que pueden ser asignados a los usuarios.
+```xml
+<security-role>
+    <role-name>rolalu</role-name>
+</security-role>
+<security-role>
+    <role-name>rolpro</role-name>
+</security-role>
+```
+- **filter**: Define filtros que pueden ser aplicados a las solicitudes entrantes o salientes. En este caso, se define un filtro llamado "Log3" y otro llamado "Authorized".
+```xml
+<filter>
+    <display-name>Log3</display-name>
+    <filter-name>Log3</filter-name>
+    <filter-class>Log3</filter-class>
+</filter>
+<filter>
+    <display-name>Authorized</display-name>
+    <filter-name>Authorized</filter-name>
+    <filter-class>Authorized</filter-class>
+</filter>
+```
+- **filter-mapping**: Asocia los filtros definidos anteriormente con patrones de URL específicos, especificando qué solicitudes serán filtradas por cada filtro.
+```xml
+<filter-mapping>
+    <filter-name>Log3</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>Authorized</filter-name>
+    <url-pattern>/GestionDinamica</url-pattern>
+    <url-pattern>/PublicarNotas</url-pattern>
+</filter-mapping>
+```
+- **servlet**: Define servlets que manejan las solicitudes del cliente. Cada servlet tiene un nombre, una clase asociada y posiblemente una descrip
+```xml
+<servlet>
+    <description></description>
+    <display-name>Alumno</display-name>
+    <servlet-name>Alumno</servlet-name>
+    <servlet-class>Alumno</servlet-class>
+</servlet>
+<servlet>
+    <description></description>
+    <display-name>Imprimir</display-name>
+    <servlet-name>Imprimir</servlet-name>
+    <servlet-class>Imprimir</servlet-class>
+</servlet>
+<servlet>
+    <description></description>
+    <display-name>Profesor</display-name>
+    <servlet-name>Profesor</servlet-name>
+    <servlet-class>Profesor</servlet-class>
+</servlet>
+<servlet>
+    <description></description>
+    <display-name>GestionDinamica</display-name>
+    <servlet-name>GestionDinamica</servlet-name>
+    <servlet-class>GestionDinamica</servlet-class>
+</servlet>
+<servlet>
+    <description></description>
+    <display-name>PublicarNotas</display-name>
+    <servlet-name>PublicarNotas</servlet-name>
+    <servlet-class>PublicarNotas</servlet-class>
+</servlet>
+<servlet>
+    <description></description>
+    <display-name>FinalizarSesion</display-name>
+    <servlet-name>FinalizarSesion</servlet-name>
+    <servlet-class>FinalizarSesion</servlet-class>
+</servlet>
+```
+- **servlet-mapping**: Asocia un servlet con un patrón de URL específico, de modo que el servlet maneje las solicitudes dirigidas a esa URL.
+```xml
+<servlet-mapping>
+    <servlet-name>Alumno</servlet-name>
+    <url-pattern>/Alumno</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+    <servlet-name>Imprimir</servlet-name>
+    <url-pattern>/Imprimir</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+    <servlet-name>Profesor</servlet-name>
+    <url-pattern>/Profesor</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+    <servlet-name>GestionDinamica</servlet-name>
+    <url-pattern>/GestionDinamica</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+    <servlet-name>PublicarNotas</servlet-name>
+    <url-pattern>/PublicarNotas</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+    <servlet-name>FinalizarSesion</servlet-name>
+    <url-pattern>/FinalizarSesion</url-pattern>
+</servlet-mapping>
+```
+- **error-page**: Define páginas de error para diferentes códigos de error HTTP. Por ejemplo, en caso de un error 403 (Acceso prohibido), el usuario será redirigido a "/error2.html".
+```xml
+<error-page>
+    <error-code>403</error-code>
+    <location>/error2.html</location>
+</error-page>
+```
+## 5. Testing
+En este apartado se va a mostrar como se ha probado todas las restricciones de seguridad que se han ido exploniendo a lo largo de la memoria, para justificar que funciona todo a la perfección. 
+En el caso de que el ususario sea un alumno o profesor:
+
+- Inicio de sesión erroneo.
+
+![Datos introducidos erroneos](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/datosMalinicio.png)
+
+![Error al solicitar entrar habiendo introducido unos datos erroneos](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/errorInicio.png)
+
+En caso de que sea un **alumno**:
+
+1. Alumno que intenta acceder por las url a distintos recursos.
+
+- GestionDinamica.java con los parámetros opt=imagen: no va a poder acceder porque no se introduce la cabecera Authorized a la hora de hacer la peticón por la URL
+
+![Acceder a GestionDinamica.java directamente desde la URL](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla1.png)
+
+![Error al intentar acceder a GestionDinamica.java desde la URL, no esta la cabecera Authorization](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla2.png)
+
+- GestionDinamica con los parámetros opt=asignatura: no va a poder acceder porque no se introduce la cabecera Authorized a la hora de hacer la peticón por la URL. Además tampoco está autorizado a acceder a este recurso.
+
+![Acceder a GestionDinamica.java directamente desde la URL](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla5.png)
+
+![Error al intentar acceder a GestionDinamica.java desde la URL, no esta la cabecera Authorization y tampoco esta autorizado para este recuro](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla6.png)
+
+- Acceder al servlet PublicarNotas.java: no va a poder acceder ni realizar cambios porque no se introduce la cabecera Authorized a la hora de hacer la peticón por la URL. Además tampoco está autorizado a acceder a este recurso.
+
+![Llamar al servlet PublicarNotas.java](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla3.png)
+
+![Error al llamar a PublicarNotas, no está autorizado](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnocotilla4.png)
+
+2. Probar a hacer la petición por consola: no va a poder acceder ni realizar cambios porque no está autorizado a acceder a este recurso.
+
+![Publicar una nota siendo un alumno](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnoTerminal2.png)
+
+![Error al intentar poner una nota siendo un alumno](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/alumnoTerminal1.png)
+
+En caso de que sea un **profesor**:
+
+1. Acceder a los servlets por url.
+
+- GestionDinamica.java con los parámetros opt=imagen: no va a poder acceder porque no se introduce la cabecera Authorized a la hora de hacer la peticón por la URL
+
+![Acceder a GestionDinamica.java directamente desde la URL](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/urlGestionDinamica.png)
+
+![Error al intentar acceder a GestionDinamica.java desde la URL, no esta la cabecera Authorization](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/errorUrlGestionDinamica.png)
+
+- Acceder al servlet PublicarNotas.java: no va a poder acceder ni realizar cambios porque no se introduce la cabecera Authorized a la hora de hacer la peticón por la URL.
+
+![Acceder a PublicarNotas.java directamente desde la URL](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/urlGestionDinamica2.png)
+
+![Error al intentar acceder a PublicarNotas.java desde la URL, no esta la cabecera Authorization](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/errorGestionDinamica2.png)
+
+2. Probar a hacer una petición por cosola para la modificación de las notas de asignaturas que no imparte: no va a poder acceder ni realizar cambios porque no está autorizado a modificar notas de alumnos de asignaturas que no imparte.
+
+![Petición AJAX por consola a PublicarNotas.java para modificar una nota a un alumno de una asignatura que no imparte](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/consolaProfe.png)
+
+![Error de la petición debido a la seguridad implementada](https://personales.alumno.upv.es/esopurb/dew/imgs/interfacesError/errorConsolaProfe.png)
