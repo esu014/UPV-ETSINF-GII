@@ -308,7 +308,9 @@ El estilo de las páginas de error se ha querido diseñar de una manera divertid
 
 ```html
 <div class="error-message" style="margin-left: 0px; top:20%">
-        Venga hombre no me jodas 
+        Algo que has introducido no es correcto
+        <br>
+        Redirigiendote en breves... 
 </div>
 <div style="margin-top:50px">
     <img src="https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg" alt="Un gato relajado" class="cat-image">
