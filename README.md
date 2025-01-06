@@ -64,7 +64,7 @@ El repositorio está estructurado en carpetas que agrupan los proyectos y práct
 ## Tecnologías y Herramientas Utilizadas
 El código de este repositorio abarca una variedad de lenguajes y herramientas empleadas durante los proyectos, tales como:
 - **Lenguajes**: Java, Python, C, C#, SQL, JavaScript, PowerShell.
-- **Herramientas**: Visual Studio, NetBeans, IntelliJ IDEA, MySQL, Git, Windows Server.
+- **Herramientas**: Visual Studio, NetBeans, Eclipse, MySQL, Git, Windows Server.
 - **Tecnologías**: OpenMP, JavaFX, Servlets, Node.js, Apache Tomcat, Active Directory.
 
 ---
