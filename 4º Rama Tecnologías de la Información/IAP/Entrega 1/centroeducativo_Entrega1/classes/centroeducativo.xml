@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:request-config name="HTTP_Request_Configuration" host="personales.upv.es" port="80" doc:name="HTTP Request Configuration"/>
+	<db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" database="centroeducativo" doc:name="MySQL Configuration"/>
+	<flow name="mainFlow" initialState="started">
+		<file:inbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_XML" moveToDirectory="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\procesados_XML" responseTimeout="10000" doc:name="inbox_XML">
+			<file:filename-regex-filter pattern="^.*\.xml$" caseSensitive="true"/>
+		</file:inbound-endpoint>
+		<file:file-to-string-transformer doc:name="File to String"/>
+		<dw:transform-message doc:name="XML2LIST" metadata:id="6a52c0a8-05dc-43fe-bd60-e03fc4c9d234">
+			<dw:input-payload mimeType="application/xml"/>
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.notas.*actoEvaluacion map ((actoEvaluacion , indexOfActoEvaluacion) -> {
+	asignatura: actoEvaluacion.asignatura,
+	nombre: actoEvaluacion.nombre,
+	dni: actoEvaluacion.alumno.@dni,
+	nota: actoEvaluacion.alumno as :number
+})]]></dw:set-payload>
+		</dw:transform-message>
+
+		<foreach doc:name="For Each">
+			<db:insert config-ref="MySQL_Configuration" doc:name="CentroEducativo">
+				<db:parameterized-query><![CDATA[INSERT INTO notas (alumno,nombre_acto,asignatura,nota)
+VALUES (#[payload.dni],#[payload.nombre],#[payload.asignatura],#[payload.nota])]]></db:parameterized-query>
+			</db:insert>
+		</foreach>
+	</flow>
+	<flow name="xml_to_inbox_FLOW" initialState="started">
+		<poll doc:name="Request">
+			<fixed-frequency-scheduler frequency="1000000" timeUnit="DAYS"/>
+			<http:request config-ref="HTTP_Request_Configuration" path="pedvalar/iap/notas/notas.xml" method="GET" doc:name="HTTP_GET_XML"/>
+		</poll>
+		<file:outbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_XML" outputPattern="notas.xml" responseTimeout="10000" doc:name="inbox_XML"/>
+	</flow>
+	<flow name="json_to_inbox_FLOW" initialState="started">
+		<poll doc:name="request">
+			<fixed-frequency-scheduler frequency="1000000" timeUnit="DAYS"/>
+			<http:request config-ref="HTTP_Request_Configuration" path="pedvalar/iap/notas/notas.json" method="GET" doc:name="HTTP_GET_JSON"/>
+		</poll>
+		<file:outbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_JSON" outputPattern="notas.json" responseTimeout="10000" doc:name="inbox_JSON"/>
+
+	</flow>
+	<flow name="csv_to_inbox_FLOW" initialState="started">
+		<poll doc:name="request">
+			<fixed-frequency-scheduler frequency="1000000" timeUnit="DAYS"/>
+			<http:request config-ref="HTTP_Request_Configuration" path="pedvalar/iap/notas/notas.csv" method="GET" doc:name="HTTP_GET_CSV"/>
+		</poll>
+		<file:outbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_CSV" outputPattern="notas.csv" responseTimeout="10000" doc:name="inbox_CSV"/>
+
+	</flow>
+	<flow name="csv2Canonical_FLOW">
+		<file:inbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_CSV" moveToDirectory="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\procesados_CSV" responseTimeout="10000" doc:name="inbox_CSV">
+			<file:filename-regex-filter pattern="^.*\.csv$" caseSensitive="true"/>
+		</file:inbound-endpoint>
+		<dw:transform-message doc:name="CSV2XML" metadata:id="aa306a12-f9e9-40ac-97b3-d7fedff8912b">
+			<dw:input-payload mimeType="application/csv"/>
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	notas: {
+		(payload map ((payload01 , indexOfPayload01) -> {
+			actoEvaluacion: {
+				asignatura: payload01.asignatura,
+				nombre: payload01.acto,
+				alumno @(dni: payload01.alumno): payload01.nota
+			}
+		}))
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<file:outbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_XML" outputPattern="notas_CSV.xml" responseTimeout="10000" doc:name="inbox_XML"/>
+	</flow>
+	<flow name="json2Canonical_FLOW">
+		<file:inbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_JSON" moveToDirectory="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\procesados_JSON" responseTimeout="10000" doc:name="inbox_JSON">
+			<file:filename-regex-filter pattern="^.*\.json$" caseSensitive="true"/>
+		</file:inbound-endpoint>
+		<file:file-to-string-transformer doc:name="File to String"/>
+		<custom-transformer mimeType="application/java" class="transformers.Json2XML2" doc:name="JSON2XML"/>
+		<file:outbound-endpoint path="C:\Users\Administrador.WIN-2O4P6U7CI32\Desktop\centroEducativo\inbox_XML" outputPattern="notas_JSON.xml" responseTimeout="10000" doc:name="inbox_XML"/>
+	</flow>
+</mule>

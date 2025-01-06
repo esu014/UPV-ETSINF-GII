@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config xmlns:http="http://www.mulesoft.org/schema/mule/http" name="centroeducativo-api-rest-httpListenerConfig" host="localhost" port="8081" doc:name="HTTP Listener Configuration" basePath="/centroEducativo"/>
+    <apikit:config xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="centroeducativo-api-rest-config" raml="centroeducativo-api-rest.raml" consoleEnabled="false" doc:name="Router"/>
+	<db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" database="centroeducativo" doc:name="MySQL Configuration"/>
+	<http:request-config name="HTTP_Request_Configuration" host="pedvalar.webs.upv.es" port="80" basePath="/iap/gva/rest" doc:name="HTTP Request Configuration"/>
+    <flow name="centroeducativo-api-rest-main">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="centroeducativo-api-rest-httpListenerConfig" path="/expedientesREST/v1/*" doc:name="HTTP"/>
+        <apikit:router xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="centroeducativo-api-rest-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="centroeducativo-api-rest-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="centroeducativo-api-rest-console">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="centroeducativo-api-rest-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="centroeducativo-api-rest-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="put:/notaFinal:application/json:centroeducativo-api-rest-config">
+		<dw:transform-message doc:name="Transform Message" metadata:id="1764ec77-d07a-40fb-a96d-9757b83bb6a3">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	dni_alumno: payload.dni_alumno,
+	id_asignatura: payload.id_asignatura,
+	nota_final: payload.nota_final
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<db:insert config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[INSERT INTO alumno_asignatura (alumno, asignatura, nota) 
+VALUES (#[payload.dni_alumno], #[payload.id_asignatura], #[payload.nota_final]) 
+ON DUPLICATE KEY UPDATE 
+nota = VALUES(nota)]]></db:parameterized-query>
+		</db:insert>
+		<set-property propertyName="Content-Type" value="text/plain" doc:name="Property"/>
+		<set-payload value="Nota Asignada" doc:name="Set Payload"/>
+
+    </flow>
+    <flow name="put:/notaFinal:application/xml:centroeducativo-api-rest-config">
+		<dw:transform-message doc:name="Transform Message" metadata:id="fb8af59f-057a-482a-a591-f3f26d5a2ed2">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	dni_alumno: payload.NotaFinal.dni_alumno,
+	id_asignatura: payload.NotaFinal.id_asignatura,
+	nota_final: payload.NotaFinal.nota_final
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<db:insert config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[INSERT INTO alumno_asignatura (alumno, asignatura, nota) VALUES (#[payload.dni_alumno],#[payload.id_asignatura],#[payload.nota_final])
+ON DUPLICATE KEY 
+UPDATE nota = VALUES (nota)]]></db:parameterized-query>
+		</db:insert>
+		<set-property propertyName="Type-Content" value="text/plain" doc:name="Property"/>
+		<set-payload value="Nota asignada" doc:name="Set Payload"/>
+
+    </flow>
+    <flow name="delete:/notaFinal:application/json:centroeducativo-api-rest-config">
+		<dw:transform-message doc:name="Transform Message" metadata:id="6d635198-6753-4cbb-af69-d89b0e8f6f20">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	dni_alumno: payload.dni_alumno,
+	id_asignatura: payload.id_asignatura
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<db:update config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[UPDATE alumno_asignatura SET nota=null WHERE alumno = #[payload.dni_alumno] AND asignatura = #[payload.id_asignatura]]]></db:parameterized-query>
+
+		</db:update>
+		<set-property propertyName="Type-Content" value="text/plain" doc:name="Property"/>
+		<set-payload value="Nota eliminada" doc:name="Set Payload"/>
+
+    </flow>
+    <flow name="delete:/notaFinal:application/xml:centroeducativo-api-rest-config">
+		<dw:transform-message doc:name="Transform Message" metadata:id="b3113542-a3f3-498d-9756-479d8bf32d3e">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+%namespace ns0 http://validationnamespace.raml.org
+---
+{
+	dni_alumno: payload.ns0#NotaFinalDelete.ns0#dni_alumno,
+	id_asignatura: payload.ns0#NotaFinalDelete.ns0#id_asignatura
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<db:update config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[UPDATE alumno_asignatura SET nota=null WHERE alumno = #[payload.dni_alumno] AND asignatura = #[payload.id_asignatura]]]></db:parameterized-query>
+		</db:update>
+		<set-property propertyName="Type-Content" value="text/plain" doc:name="Property"/>
+		<set-payload value="Nota eliminada" doc:name="Set Payload"/>
+
+    </flow>
+    <flow name="get:/alumnos:centroeducativo-api-rest-config">
+		<set-variable variableName="formato" value="#[message.inboundProperties.accept]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT dni, nombre, apellidos FROM alumnos]]></db:parameterized-query>
+		</db:select>
+		<choice doc:name="Choice">
+			<when expression="#[flowVars.formato=='application/json']">
+				<dw:transform-message doc:name="Transform Message" metadata:id="c32d6fe8-2d05-4515-b0cc-472ec9aa21ad">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	dni: payload01.dni,
+	nombre: payload01.nombre,
+	apellidos: payload01.apellidos
+})]]></dw:set-payload>
+				</dw:transform-message>
+			</when>
+			<otherwise>
+				<dw:transform-message doc:name="Transform Message" metadata:id="2da0d83d-0dc8-4e91-b93e-40ee47c6518a">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	alumnos: {
+		(payload map ((payload01 , indexOfPayload01) -> {
+			alumno: {
+				dni: payload01.dni,
+				nombre: payload01.nombre,
+				apellidos: payload01.apellidos
+			}
+		}))
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</otherwise>
+		</choice>
+
+    </flow>
+    <flow name="get:/asignaturas:centroeducativo-api-rest-config">
+		<set-variable variableName="formato" value="#[message.inboundProperties.accept]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT id_asig, acronimo, anyo FROM asignaturas]]></db:parameterized-query>
+		</db:select>
+		<choice doc:name="Choice">
+			<when expression="#[flowVars.formato=='application/json']">
+				<dw:transform-message doc:name="Transform Message" metadata:id="fad8fe6d-7a45-400f-8eae-00fa6c72f009">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	id: payload01.id_asig,
+	acronimo: payload01.acronimo,
+	anyo: payload01.anyo
+})]]></dw:set-payload>
+				</dw:transform-message>
+			</when>
+			<otherwise>
+				<dw:transform-message doc:name="Transform Message" metadata:id="7bb19d46-cb38-4d53-8edb-4cb91d570ad6">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	asignaturas: {
+		(payload map ((payload01 , indexOfPayload01) -> {
+			asignatura: {
+				id: payload01.id_asig,
+				acronimo: payload01.acronimo,
+				anyo: payload01.anyo
+			}
+		}))
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</otherwise>
+		</choice>
+
+    </flow>
+    <flow name="get:/alumnos/{dni}:centroeducativo-api-rest-config">
+		<set-variable variableName="dni" value="#[message.inboundProperties.'http.uri.params'.dni]" doc:name="Variable"/>
+		<set-variable variableName="formato" value="#[message.inboundProperties.accept]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database" maxRows="1">
+			<db:parameterized-query><![CDATA[SELECT dni, nombre, apellidos FROM alumnos WHERE dni = #[flowVars.dni]]]></db:parameterized-query>
+
+		</db:select>
+		<set-variable variableName="alumno" value="#[payload[0]]" doc:name="Variable"/>
+		<http:request config-ref="HTTP_Request_Configuration" path="/direccion/#[flowVars.dni]" method="GET" doc:name="HTTP">
+			<http:request-builder>
+				<http:header headerName="accept" value="application/json"/>
+			</http:request-builder>
+		</http:request>
+		<dw:transform-message doc:name="Transform Message" metadata:id="f4a5a3d1-41e2-48c3-bf42-fe1057064a19">
+			<dw:input-payload mimeType="application/json"/>
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	id: payload.id,
+	codigoPostal: payload.codigoPostal,
+	ciudad: payload.ciudad,
+	direccion: payload.direccion
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<set-variable variableName="direccionPostal" value="#[payload]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT ad.asignatura, ad.nota, a.acronimo, a.anyo FROM alumno_asignatura ad, asignaturas a WHERE alumno = #[flowVars.dni] AND ad.asignatura = a.id_asig]]></db:parameterized-query>
+		</db:select>
+		<set-variable doc:name="Variable" value="#[payload]" variableName="notas"/>
+		<choice doc:name="Choice">
+			<when expression="#[flowVars.formato=='application/json']">
+				<dw:transform-message doc:name="Transform Message" metadata:id="d2ffc116-26ec-4aa4-9a83-4151a7d295d3">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	dni_alumno: flowVars.alumno.dni,
+	nombre_alumno: flowVars.alumno.nombre,
+	apellidos_alumno: flowVars.alumno.apellidos,
+	direccion_postal: {
+		id: flowVars.direccionPostal.id,
+		codigoPostal: flowVars.direccionPostal.codigoPostal as :number,
+		ciudad: flowVars.direccionPostal.ciudad,
+		direccion: flowVars.direccionPostal.direccion
+	},
+	notas: flowVars.notas map ((nota , indexOfNota) -> {
+		nota: (nota.nota default 0) as :number,
+		id: nota.asignatura,
+		acronimo: nota.acronimo,
+		anyo: nota.anyo
+	})
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</when>
+			<otherwise>
+				<dw:transform-message doc:name="Transform Message" metadata:id="d3245be4-6f0f-4213-b077-130e504f8eb0">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	ExpedienteAlumno: {
+		dni_alumno: flowVars.alumno.dni,
+		nombre_alumno: flowVars.alumno.nombre,
+		apellidos_alumno: flowVars.alumno.apellidos,
+		direccion_postal: {
+			id: flowVars.direccionPostal.id,
+			codigoPostal: flowVars.direccionPostal.codigoPostal as :number,
+			ciudad: flowVars.direccionPostal.ciudad,
+			direccion: flowVars.direccionPostal.direccion
+		},
+		notas: {
+			(flowVars.notas map ((nota , indexOfNota) -> {
+				Nota: {
+					nota: (nota.nota default 0) as :number,
+					id: nota.asignatura,
+					acronimo: nota.acronimo,
+					anyo: nota.anyo
+				}
+			}))
+		}
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</otherwise>
+		</choice>
+
+    </flow>
+    <flow name="get:/asignaturas/{id}:centroeducativo-api-rest-config">
+		<set-variable variableName="id" value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Variable"/>
+		<set-variable variableName="formato" value="#[message.inboundProperties.accept]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT id_asig, acronimo, nombre, anyo, creditos, cuatrimestre FROM asignaturas WHERE id_asig = #[flowVars.id]]]></db:parameterized-query>
+		</db:select>
+		<set-variable variableName="asignatura" value="#[payload[0]]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT dni, nombre, apellidos FROM alumnos WHERE dni IN (SELECT alumno FROM alumno_asignatura WHERE asignatura = #[flowVars.id])]]></db:parameterized-query>
+		</db:select>
+		<set-variable variableName="alumnos" value="#[payload]" doc:name="Variable"/>
+		<db:select config-ref="MySQL_Configuration" doc:name="Database">
+			<db:parameterized-query><![CDATA[SELECT dni, nombre, apellidos FROM profesores WHERE dni IN (SELECT profesor FROM profesor_asignatura WHERE asignatura = #[flowVars.id])]]></db:parameterized-query>
+		</db:select>
+		<set-variable variableName="profesores" value="#[payload]" doc:name="Variable"/>
+		<choice doc:name="Choice">
+			<when expression="[flowVars.formato=='application/json']">
+				<dw:transform-message doc:name="Transform Message" metadata:id="8abeae5d-0317-4133-86dc-fd719956e63a">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	id: flowVars.asignatura.id_asig,
+	acronimo: flowVars.asignatura.acronimo,
+	nombre: flowVars.asignatura.nombre,
+	anyo: flowVars.asignatura.anyo,
+	creditos: flowVars.asignatura.creditos,
+	cuatrimestre: flowVars.asignatura.cuatrimestre,
+	alumnos: flowVars.alumnos map ((alumno , indexOfAlumno) -> {
+		nombre: alumno.nombre,
+		apellidos: alumno.apellidos ++ alumno.apellidos,
+		dni: alumno.dni
+	}),
+	profesores: flowVars.profesores map ((profesore , indexOfProfesore) -> {
+		nombre: profesore.nombre ++ profesore.nombre,
+		apellidos: profesore.apellidos ++ profesore.apellidos,
+		dni: profesore.dni
+++ profesore.dni
+	})
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</when>
+			<otherwise>
+				<dw:transform-message doc:name="Transform Message" metadata:id="39829a96-12e0-4e36-9d37-6e0ea71b6081">
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	AsignaturaDetallada: {
+		id: flowVars.asignatura.id_asig ++ flowVars.id,
+		acronimo: flowVars.asignatura.acronimo,
+		nombre: flowVars.asignatura.nombre,
+		anyo: flowVars.asignatura.anyo,
+		creditos: flowVars.asignatura.creditos,
+		cuatrimestre: flowVars.asignatura.cuatrimestre,
+		alumnos: {
+			(flowVars.alumnos map ((alumno , indexOfAlumno) -> {
+				Alumno: {
+					nombre: alumno.nombre
+				}
+			}) ++ (flowVars.alumnos map ((alumno , indexOfAlumno) -> {
+				Alumno: {
+					nombre: alumno.nombre,
+					apellidos: alumno.apellidos,
+					dni: alumno.dni
+				}
+			})))
+		},
+		profesores: {
+			(flowVars.profesores map ((profesore , indexOfProfesore) -> {
+				Profesor: {
+					nombre: profesore.nombre,
+					apellidos: profesore.apellidos,
+					dni: profesore.dni
+				}
+			}))
+		}
+	}
+}]]></dw:set-payload>
+				</dw:transform-message>
+			</otherwise>
+		</choice>
+
+    </flow>
+    <apikit:mapping-exception-strategy xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="centroeducativo-api-rest-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

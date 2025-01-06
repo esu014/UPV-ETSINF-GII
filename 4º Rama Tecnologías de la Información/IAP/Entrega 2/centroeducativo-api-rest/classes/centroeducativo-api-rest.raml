@@ -1,0 +1,221 @@
+#%RAML 1.0
+title: centroEducativo-api-REST
+description: API REST de centro educativo
+baseUri: http://localhost:8081
+protocols:
+- HTTPS
+- HTTP
+
+mediaType:
+  - application/xml
+  - application/json
+
+types:
+  Alumno:
+    type: object
+    properties:
+      nombre: string
+      apellidos: string
+      dni: string
+      
+  Asignatura:
+    type: object
+    properties:
+      id_asig: string
+      acronimo: string
+      anyo: integer
+  
+  DireccionPostal:
+    type: object
+    properties: 
+      id: string
+      codigoPostal: integer
+      ciudad: string
+      direccion: string
+  Nota:
+    type: object
+    properties:
+      nota: number
+      id: string
+      acronimo: string
+      anyo: integer    
+          
+  ExpedienteAlumno:
+    type: object
+    properties:
+      dni_alumno: string
+      nombre_alumno: string
+      apellidos_alumno: string
+      direccion_postal: DireccionPostal
+      notas: Nota[] 
+      
+  Profesor:
+    type: object
+    properties:
+      nombre: string
+      apellidos: string
+      dni: string
+          
+  AsignaturaDetallada:
+    type: object
+    properties:
+      id: string
+      acronimo: string
+      nombre: string
+      anyo: integer
+      creditos: number
+      cuatrimestre:
+        type: string
+        enum: [A,B]
+      alumnos: Alumno[] 
+      profesores: Profesor[]
+      
+  NotaFinal:
+    type: object
+    properties:
+      dni_alumno: string
+      id_asignatura: string
+      nota_final: number
+  
+  NotaFinalDelete:
+    type: object
+    properties:
+      dni_alumno: string
+      id_asignatura: string
+
+/alumnos:
+  get:
+    description: Recibir el listado de alumnos del centro
+    responses:
+      200:   
+        body:
+          application/json:
+          application/xml:
+            type: Alumno[]
+      400:
+        body:
+          text/plain:
+            type: string
+            example: "Bad Request" 
+      404:
+        body:
+          text/plain:
+            type: string
+            example: "Not Found"  
+  /{dni}:
+    get:
+      description: Obtener el expediente académico de un alumno en concreto mediante el dni
+      responses:
+        200:   
+          body:
+            application/json:
+            application/xml:
+              type: ExpedienteAlumno
+        400:
+          body:
+            text/plain:
+              type: string
+              example: "Bad Request" 
+        404:
+          body:
+            text/plain:
+              type: string
+              example: "Not Found"  
+
+/asignaturas:
+  get:
+    description: Recibir el listado de asignaturas del centro
+    responses:
+      200:   
+        body:
+          application/json:
+          application/xml:
+            type: Asignatura[]
+      400:
+        body:
+          text/plain:
+            type: string
+            example: "Bad Request" 
+      404:
+        body:
+          text/plain:
+            type: string
+            example: "Not Found"  
+  /{id}:
+    get:
+      description: Recibir una asignatura del centro asi como los Alumnos matriculados y los Profesores que la imparten
+      responses:
+        200:   
+          body:
+            application/json:
+            application/xml:
+              type: AsignaturaDetallada
+        400:
+          body:
+            text/plain:
+              type: string
+              example: "Bad Request" 
+        404:
+          body:
+            text/plain:
+              type: string
+              example: "Not Found"  
+/notaFinal:
+  put:
+    description: Actualizar o asignar una nota final a un alumno en una asignatura específica
+    body:
+      type: NotaFinal
+    responses:
+        200:   
+          body:
+            text/plain:
+              type: string
+              example: "Nota asignada"
+        204:
+          body: 
+            text/plain:
+              example: "No Content"
+        400:
+          body:
+            text/plain:
+              type: string
+              example: "Bad Request" 
+        404:
+          body:
+            text/plain:
+              type: string
+              example: "Not Found"  
+        500:
+          body:
+            text/plain:
+              type: string
+              example: "Internal Server Error"
+  delete:
+    description: Eliminar una nota final a un alumno en una asignatura específica
+    body:
+      type: NotaFinalDelete
+    responses:
+        200:   
+          body:
+            text/plain:
+              type: string
+              example: "Nota eliminada"
+        204:
+          body: 
+            text/plain:
+              example: "No Content"
+        400:
+          body:
+            text/plain:
+              type: string
+              example: "Bad Request" 
+        404:
+          body:
+            text/plain:
+              type: string
+              example: "Not Found"  
+        500:
+          body:
+            text/plain:
+              type: string
+              example: "Internal Server Error"
