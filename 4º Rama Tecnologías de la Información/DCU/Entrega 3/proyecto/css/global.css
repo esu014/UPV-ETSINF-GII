@@ -1,0 +1,180 @@
+/*
+Colores:
+    - Verde oscuro: 5BAD96
+    - Verde clarito pantalla login/registro: BEDDD9
+    - Verde clarito campos de datos: DFEEE8
+    - Verde letras sobre clarito de registrarse: 007F4E
+    - Verde texto de ejemplo: 4C886F
+    - Verde texto de la aplicacion: 3E837A
+    - Azul Links: 2260FF
+*/
+:root {
+    --color-green1: #5BAD96;
+    --color-green2: #BEDDD9;
+    --color-green3: #DFEEE8;
+    --color-text1: #3E837A;
+    --color-text2: #4C886F;
+    --color-text3: #4a8068;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100&display=swap');
+
+body {
+    font-family: 'League Spartan', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    background-color: #1d1d1d;
+    color: #000000;
+}
+
+
+
+header {
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.493) 80%);
+    font-weight: bold;
+    font-size: 25px;
+    color: #4a8068;
+    text-align: center;
+    padding: 15px;
+    padding-top: 30px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+}
+
+.back-arrow {
+    cursor: pointer;
+    margin-right: 10px;
+    text-decoration: none;
+    position: absolute;
+    left: 27px;
+    width: 30px;
+}
+
+/* appcontainer {
+    display: block;    
+    background-color: #fff;
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    overflow: hidden;
+} */
+
+.appcontainer {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: auto;
+    /* antes era hidden */
+    scrollbar-width: none;
+    border-radius: 20px;
+}
+
+.cardcontainer {
+    padding: 25px;
+    padding-top: 0px;
+}
+
+.card {
+    margin: 20px 10px;
+    padding: 20px 30px;
+    border-radius: 30px;
+    background-color: var(--color-green2);
+    font-size: 14px;
+    font-family: 'League Spartan', sans-serif;
+}
+
+ .card button,
+ .card * button {
+     width: 100%;
+     background-color: var(--color-green1);
+     color: white;
+     border: none;
+     border-radius: 15px;
+     padding: 6px;
+     font-size: 20px;
+     cursor: pointer;
+     font-family: 'League Spartan';
+     transition: background-color 0.3s;
+
+ }
+
+ .card button:hover,
+ .card * button:hover {
+     background-color: #3c6c5a;
+ }
+
+.backdrop-blur {
+    backdrop-filter: blur(10px);
+    /* Aplica el desenfoque al fondo */
+    -webkit-backdrop-filter: blur(10px);
+    /* Compatibilidad con Safari */
+}
+
+.mainbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: auto;
+    min-width: 300px;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 13px 15px;
+    background-color: rgba(46, 141, 114, 0.747);
+    border-radius: 35px;
+    box-shadow: rgba(56, 110, 77, 0.507) 0px 0px 10px;
+    backdrop-filter: blur(10px);
+}
+.mainbar a {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex: 1;
+}
+.mainbar .homebtn {
+    flex: 2;
+    margin: 0px 38px;
+}
+
+footer {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 0.493) 80%);
+
+    margin-top: auto;
+    padding: 15px;
+    display: flex;
+    justify-content: space-around;
+    z-index: 2;
+    position: sticky;
+    flex-shrink: 0;
+    bottom: 0;
+
+}
+
+input{
+    width: 98%;
+    height: 45px;
+    background-color: #DFEEE8;
+    border: none;
+    border-radius: 13px;
+    font-size: 15px;
+    padding-left: 2%;
+
+}
+input::placeholder{
+    color: #4C886F;
+}
+label{
+    font-size: 20px;
+}
