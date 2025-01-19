@@ -1,0 +1,123 @@
+/***************************************************************
+  Contenedor principal del perfil
+***************************************************************/
+.profile-container {
+    /* Para centrar y dar margen con el header/footer */
+    width: 100%;
+    max-width: 500px; /* Controla el ancho máximo (responsive) */
+    margin: 0 auto;   /* Centra horizontalmente */
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /***************************************************************
+    Título de la página "Mi Perfil"
+  ***************************************************************/
+  .profile-title {
+    font-size: 1.5rem;
+    color: #5CA08E; /* Un tono verde similar al de la imagen */
+    margin-bottom: 1rem;
+  }
+  
+  /***************************************************************
+    Sección del Avatar
+  ***************************************************************/
+  /* Contenedor que envuelve la imagen de avatar y el ícono de edición */
+  .avatar-section {
+    position: relative; /* Para poder posicionar el ícono de edición sobre la imagen */
+    margin-bottom: 1rem;
+  }
+  
+  /* Imagen principal de avatar (circular) */
+  .avatar-img {
+    width: 100px; 
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  /* Pequeño ícono de edición sobre la imagen de avatar */
+  .avatar-edit-icon {
+    position: absolute;
+    bottom: 0; 
+    right: 0;
+    background-color: #ffffff;
+    border-radius: 50%;
+    /* Ajusta el tamaño y padding para centrar el ícono */
+    padding: 0.25rem;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  }
+  
+  /* Imagen del ícono de edición (el lápiz) */
+  .edit-icon-img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /***************************************************************
+    Nombre del usuario
+  ***************************************************************/
+  .user-name {
+    font-size: 1.2rem;
+    color: #000000;
+    margin-bottom: 1.5rem;
+  }
+  
+  /***************************************************************
+    Opciones del perfil
+  ***************************************************************/
+  .profile-options {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Espacio vertical entre opciones */
+  }
+  
+  /* Cada opción individual (Datos Personales, Ajustes, etc.) */
+  .profile-option {
+    width: 86%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ícono a la izq, flecha a la der */
+    background-color: #F7F7F7; /* Fondo gris claro */
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer; /* Para indicar que es clickable */
+  }
+  
+  /* Ícono a la izquierda (opcional) */
+  .option-icon {
+    display: flex;              /* Activa Flexbox */
+    justify-content: center;    /* Centra horizontalmente */
+    align-items: center; 
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--color-green2);
+    margin-right: 0.75rem;
+  }
+  
+  /* Texto de la opción (Datos Personales, Ajustes, etc.) */
+  .option-text {
+    font-size: 1rem;
+    color: #333333;
+    width: 20px;
+    display: inline-block;
+    flex: 1; /* Ocupa el espacio disponible en el medio */
+  }
+  
+  /* Flecha a la derecha */
+  .arrow-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
+  
+  /* Pequeña interacción al hover (opcional) */
+  .profile-option:hover {
+    background-color: #E3E3E3;
+  }
+  

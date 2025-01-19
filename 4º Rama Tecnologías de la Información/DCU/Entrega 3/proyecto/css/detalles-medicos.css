@@ -1,0 +1,78 @@
+
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@500&display=swap');
+hr{
+    border: none;
+    height: 2px;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color: var(--color-green1);
+}
+.medicamento {
+    margin: 0 20px;
+    margin-bottom: 20px;
+    padding: 20px 20px;
+    border-radius: 30px;
+    background-color: var(--color-green2);
+    font-size: 14px;
+    font-family: 'League Spartan', sans-serif;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px
+}
+.medicamento h3 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    color: var(--color-text1);
+}
+.medicamento-info{
+    background-color: white;
+    width: 100%;
+    border-radius: 13px;
+    padding-left: 15px;
+    padding-top: 10px;
+    height: fit-content;
+}
+.medicamento-info h2{
+    margin-top: -6px;
+    margin-bottom: -6px;
+    color: var(--color-text2);
+}
+
+.medicamento p {
+    margin: 5px 0;
+    color: black
+}
+.info-toma{
+    display: flex;
+    border-radius: 60px;
+    border: 2px solid;
+    border-color:  var(--color-green1);
+    margin: 20px 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color: var(--color-text1);
+    justify-content: left;
+    align-items: center;
+    width: fit-content;
+    height: 35px;
+}
+.fechas, .notas-adicionales{
+    margin: 0 30px;
+}
+.fechas ul,.notas-adicionales ul{
+    font-size: 15px;
+}
+.fechas li, .notas-adicionales li{
+    margin-bottom: 15px;
+}
+.fechas span, .notas-adicionales span{
+    font-size: 24px;
+}
+
+.back-arrow {
+    cursor: pointer;
+    margin-right: 10px;
+    text-decoration: none;
+}
